@@ -7,7 +7,7 @@ Sun Tracking PV System for Senior Design.
 * Accelerometer
     * determine the motion of the system and keep track of movement
 * Magnetometer
-    * >> insert specific role of device for system <<
+    *  *insert specific role of device for system*
 * Motor Movement & Control
     * send control signals (PWM?) to the DC gear motors for movement
     * covers horizontal (rotation around the z-axis) and vertical (rotation around the y-axis) motion
@@ -21,10 +21,10 @@ Sun Tracking PV System for Senior Design.
     * Control motion of the system
 
 ### Dev Setup
->> insert steps for MPLAB x IDE to build project for our target microcontroller << 
+*insert steps for MPLAB x IDE to build project for our target microcontroller*
 
 ### Progress
->> keep track of dev progress as we go <<
+*keep track of dev progress as we go*
 
 ### Notes
 >> important points to let others know of/keep track of for oneself during development
