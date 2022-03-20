@@ -27,5 +27,5 @@ Sun Tracking PV System for Senior Design.
 *keep track of dev progress as we go*
 
 ### Notes
->> important points to let others know of/keep track of for oneself during development
+*important points to let others know of/keep track of for oneself during development*
 
