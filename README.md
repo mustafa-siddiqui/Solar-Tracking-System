@@ -22,6 +22,7 @@ Sun Tracking PV System for Senior Design.
 
 ### Dev Setup
 *insert steps for MPLAB x IDE to build project for our target microcontroller*
+Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 ### Progress
 *keep track of dev progress as we go*
