@@ -21,8 +21,17 @@ Sun Tracking PV System for Senior Design.
     * Control motion of the system
 
 ### Dev Setup
-*insert steps for MPLAB x IDE to build project for our target microcontroller*
 Microcontroller: PIC18F4680 (8-bit, 40 pins)
+
+##### Project Configuration:
+<u>Family</u>: All Families (or the 8-bit one)  
+<u>Device</u>: PIC18F4680  
+<u>Connected Hardware Tool</u>: Pickit3 (should automatically show up once connected) (for simulation, select simulator)  
+<u>Packs</u>: PIC18Fxxxx_DFP/1.2.26  
+<u>Compiler Toolchain</u>: XC8/XC8 (v2.36) [/your_specific_filepath]  
+
+*Note*: Make sure to select 4.75 V as voltage level for the PICkit 3 that we're using.  
+> In `Conf: [default]/PICkit 3/`, select `Power` in `Option Categories`, enable `Power target circuit from PICkit 3`, and select `Voltage level` = 4.75 V.  
 
 ### Progress
 *keep track of dev progress as we go*
