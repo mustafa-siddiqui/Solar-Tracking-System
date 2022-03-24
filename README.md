@@ -37,4 +37,6 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 *keep track of dev progress as we go*
 
 ### Notes
-[*important points to let others know of/keep track of for oneself during development*]
+[*important points to let others know of/keep track of for oneself during development*]  
+
+Added the whole MPLAB Project in `src/`, so just clone the repo and get working! You can open the project `InitialTest.X` in MPLAB IDE.
