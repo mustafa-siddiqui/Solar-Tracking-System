@@ -36,7 +36,7 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 ### Progress
 *keep track of dev progress as we go*
 
+**04/05**: Successfully debugged MCU issue (irregular behavior turned out to be because of some pins in floating state; added a 7.5k ohm resistor between MCLR/Vpp and Vdd). Ready for software development.  
+
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
-
-Added the whole MPLAB Project in `src/`, so just clone the repo and get working! You can open the project `InitialTest.X` in MPLAB IDE.
