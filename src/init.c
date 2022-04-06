@@ -9,6 +9,7 @@
  */
 
 #include "../inc/init.h"
+#include <xc.h>
 
 /* initialize pins as digitial outputs */
 void initPins(void) {

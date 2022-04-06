@@ -19,7 +19,7 @@ int main(void) {
     while (1) {
         // turn on LEDs and delay
         LATDbits.LATD2 = 1;
-        LATbits.LATD3 = 1;
+        LATDbits.LATD3 = 1;
         _delay(1000);
 
         // turn off LEDs and delay
