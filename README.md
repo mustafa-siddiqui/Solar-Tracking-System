@@ -3,13 +3,17 @@ Sun Tracking PV System for Senior Design.
 
 ### Modules
 * GPS Receiver
-    * receive gps coordinates of the sun and determine direction of movement
+    * receive gps coordinates of the sun and determine direction of target movement
 * Accelerometer
     * determine the motion of the system and keep track of movement
+    * calculate zenith angle
 * Magnetometer
-    *  *insert specific role of device for system*
+    * measure direction of magnetic field
+    * calculate azimuth angle
 * Motor Movement & Control
-    * send control signals (PWM?) to the DC gear motors for movement
+    * send control signals to the DC gear motors for movement
+        * PWM
+        * direction bit
     * covers horizontal (rotation around the z-axis) and vertical (rotation around the y-axis) motion
 * System Info
     * Operating info like
@@ -36,9 +40,14 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 ### Progress
 *keep track of dev progress as we go*
 
-**04/05**: Successfully debugged MCU issue (irregular behavior turned out to be because of some pins in floating state; added a 7.5k ohm resistor between MCLR/Vpp and Vdd). Ready for software development.  
+**04/05**: Successfully debugged MCU issue (irregular behavior turned out to be because of some pins in floating state; added a 7.5k ohm resistor between MCLR/Vpp and Vdd). Ready for software development.
+
+**04/09**: SPI module created. Overall module layout created. Have separate modules for accelorometer, magnetometer, and GPS receiver. These modules will communicate with the main module. Most likely, timers will be used in the main module to get sensor data from these modules.
 
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
 
--> Correct circuit set up is essential to normal operation of the microcontroller. Two capacitors required for Vdd pins on either side of the MCU. ~7-10k ohm resistor required betweeen MCLR/Vpp and Vdd pins. Extra precaution to set all pins as digital output upon start up.  
+-> Correct circuit set up is essential to normal operation of the microcontroller. Two capacitors required for Vdd pins on either side of the MCU. ~7-10k ohm resistor required betweeen `MCLR/Vpp` and `Vdd` pins. Extra precaution to set all pins as digital output upon start up.  
+
+-> Please make sure to add adequate comments to ease any debugging processes later down the line. Also, in the header files for the modules, please make sure to add a comment block above the function declaration mentioning a brief overview, parameter descriptions, and what info is returned. Example: `initPins()` in `init.h`.
+
