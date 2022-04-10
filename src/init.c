@@ -11,7 +11,7 @@
 #include "../inc/init.h"
 #include <xc.h>
 
-/* initialize pins as digitial outputs */
+/* initialize pins as digital outputs */
 void initPins(void) {
     TRISA = 0x0;
     TRISB = 0x0;
