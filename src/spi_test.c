@@ -1,6 +1,6 @@
 /*
  * File:   SPI_test.c
- * Author: alich
+ * Author: Ali Choudhry, Carter Bordeleau, Mahmud Jumaev, Mustafa Siddiqui.
  *
  * Created on April 4, 2022, 9:54 PM
  * From   https://www.electronicwings.com/pic/pic18f4550-spi
@@ -72,10 +72,10 @@
 
 void SPI_Init_Master(){
     /* PORT definition for SPI pins*/    
-    TRISBbits.TRISB0 =1;	/* RB0 as input(SDI) */
-    TRISBbits.TRISB1=0;		/* RB1 as output(SCK) */
-    TRISAbits.TRISA5=0;		/* RA5 as a output(SS') */
-    TRISCbits.TRISC7=0;		/* RC7 as output(SDO) */
+    TRISCbits.TRISC4 =1;	/* RC4 as input(SDI) */
+    TRISCbits.TRISC3=0;		/* RC3 as output(SCK) */
+    TRISAbits.TRISA5=0;		/* RA5 as a output(SS) */
+    TRISCbits.TRISC5=0;		/* RC5 as output(SDO) */
 
     /* To initialize SPI Communication configure following Register*/
     CS = 1;
@@ -93,10 +93,10 @@ void SPI_Init_Master(){
 
 void SPI_Init_Slave(){
     /* PORT definition for SPI pins*/    
-    TRISBbits.TRISB0 = 1;	/* RB0 as input(SDI) */
-    TRISBbits.TRISB1 = 1;	/* RB1 as output(SCK) */
-    TRISAbits.TRISA5 = 1;	/* RA5 as a output(SS') */
-    TRISCbits.TRISC7 = 0;	/* RC7 as output(SDO) */
+    TRISCbits.TRISC4 =1;	/* RC4 as output(SDI) */
+    TRISCbits.TRISC3=1;		/* RC3 as input(SCK) */
+    TRISAbits.TRISA5=1;		/* RA5 as input(SS) */
+    TRISCbits.TRISC5=0;		/* RC5 as input(SDO) */
 
     /* To initialize SPI Communication configure following Register*/
     CS = 1;
@@ -146,8 +146,11 @@ void main(){
         CS = 0;
         for(i=0;i<=15;i++)	/* Start counter */
         {
+            SPI_Read(i);
             SPI_Write(i);	/* Send counter value to Slave */
             MSdelay(1000);
+            TRISDbits.TRISD2 = 0;
+            LATDbits.LATD2 = 1;
         }
         CS = 1;
         i=0;
