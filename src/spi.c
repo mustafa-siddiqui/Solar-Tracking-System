@@ -15,10 +15,10 @@
 /* initialize master module */
 void SPI_Init_Master(void) {
     /* PORT definition for SPI pins*/    
-    TRISBbits.TRISB0 = 1;	/* RB0 as input(SDI) */
-    TRISBbits.TRISB1 = 0;		/* RB1 as output(SCK) */
-    TRISAbits.TRISA5 = 0;		/* RA5 as a output(SS') */
-    TRISCbits.TRISC7 = 0;		/* RC7 as output(SDO) */
+    TRISCbits.TRISC4 = 1;	/* RC4 as input(SDI) */
+    TRISCbits.TRISC3 = 0;		/* RC3 as output(SCK) */
+    TRISAbits.TRISA5 = 0;		/* RA5 as a output(SS) */
+    TRISCbits.TRISC5 = 0;		/* RC5 as output(SDO) */
 
     /* To initialize SPI Communication configure following Register*/
     CS = 1;
@@ -37,47 +37,45 @@ void SPI_Init_Master(void) {
 /* initialize slave module */
 void SPI_Init_Slave(void) {
     /* PORT definition for SPI pins*/    
-    TRISBbits.TRISB0 = 1;	/* RB0 as input(SDI) */
-    TRISBbits.TRISB1 = 1;	/* RB1 as output(SCK) */
-    TRISAbits.TRISA5 = 1;	/* RA5 as a output(SS') */
-    TRISCbits.TRISC7 = 0;	/* RC7 as output(SDO) */
+    TRISCbits.TRISC4 = 1;	/* RC4 as output(SDI) */
+    TRISCbits.TRISC3 = 1;		/* RC3 as input(SCK) */
+    TRISAbits.TRISA5 = 1;		/* RA5 as input(SS) */
+    TRISCbits.TRISC5 = 0;		/* RC5 as input(SDO) */
 
     /* To initialize SPI Communication configure following Register*/
     CS = 1;
     SSPSTAT = 0x40;		/* Data change on rising edge of clk , BF=0*/
     SSPCON1 = 0x24;		/* Slave mode,Serial enable, idle state 
-				            high for clk */ 
+				high for clk */ 
     PIR1bits.SSPIF = 0;
 
     /* Disable the ADC channel which are on for multiplexed pin 
     when used as an input */    
     ADCON0 = 0;			/* This is for de-multiplexed the SCL
-				            and SDI from analog pins*/
+				and SDI from analog pins*/
     ADCON1 = 0x0F;		/* This makes all pins as digital I/O */    
 }
 
 /* transmit data */
 void SPI_Write(unsigned char x) {
     unsigned char data_flush;
-    SSPBUF = x;			        /* Copy data in SSBUF to transmit */
-    while (!PIR1bits.SSPIF);	/* Wait for complete 1 byte transmission */
-    PIR1bits.SSPIF = 0;		    /* Clear SSPIF flag */
+    SSPBUF = x;			/* Copy data in SSBUF to transmit */
+    while(!PIR1bits.SSPIF);	/* Wait for complete 1 byte transmission */
+    PIR1bits.SSPIF = 0;		/* Clear SSPIF flag */
     data_flush = SSPBUF;		/* Flush the data */
 }
 
 /* read data received */
 unsigned char SPI_Read(void) {    
-    SSPBUF = 0xff;		    /* Copy flush byte in SSBUF */
+    SSPBUF = 0xff;		/* Copy flush byte in SSBUF */
     while(!PIR1bits.SSPIF);	/* Wait for complete 1 byte transmission */
     PIR1bits.SSPIF = 0;
-
-    /* Return received byte */ 
-    return(SSPBUF);  
+    return(SSPBUF);		/* Return received byte */   
 }
 
 /* Delay of 1 ms for 8MHz Frequency */
-void MSdelay(unsigned int val) {	
+void MSdelay(unsigned int val) {
      unsigned int i,j;
-        for (i = 0; i < val; i++)
-            for (j = 0; j < 165; j++);
+        for(i=0;i<val;i++)
+            for(j=0;j<165;j++);
 }
