@@ -70,9 +70,9 @@ int* _getCurrentReading(void);
  * @brief   Intialize accelerometer module to start taking
  *          measurement readings.
  * @param   NULL
- * @return  NULL
+ * @return  1 if successfully initialized, 0 if not
  */
-void initAccel(void);
+int initAccel(void);
 
 /**
  * @brief   Get current zenith angle by calculating it from
