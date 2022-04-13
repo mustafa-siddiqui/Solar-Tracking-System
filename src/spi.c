@@ -21,7 +21,7 @@ void SPI_Init_Master(void) {
     TRISCbits.TRISC5 = 0;		/* RC5 as output(SDO) */
 
     /* To initialize SPI Communication configure following Register*/
-    CS = 1;
+    CS = 1; /* CHECK: double-check if this is indeed the right pin for master operation. I think it should be the CS pin. */
     SSPSTAT = 0x40;		/* Data change on rising edge of clk , BF=0*/
     SSPCON1 = 0x22;		/* Master mode,Serial enable,
                             idle state low for clk, fosc/64 */ 
@@ -35,7 +35,7 @@ void SPI_Init_Master(void) {
 }
 
 /* initialize slave module */
-void SPI_Init_Slave(void) {
+void SPI_Init_Slave(int slave) {
     /* PORT definition for SPI pins*/    
     TRISCbits.TRISC4 = 1;	/* RC4 as output(SDI) */
     TRISCbits.TRISC3 = 1;		/* RC3 as input(SCK) */
@@ -43,7 +43,23 @@ void SPI_Init_Slave(void) {
     TRISCbits.TRISC5 = 0;		/* RC5 as input(SDO) */
 
     /* To initialize SPI Communication configure following Register*/
-    CS = 1;
+    CS = 1; // doubtful if this is needed in slave initialization (considering this is CS and not SS)
+    switch (slave) {
+        case ACCELEROMETER:
+            SS1 = 1;
+            SS2 = 0;
+            break;
+        case MAGNETOMETER:
+            SS1 = 0;
+            SS2 = 1;
+            break;
+        default:
+            // do not initialize if incorrect slave
+            SS1 = 0;
+            SS2 = 0;
+            break;
+    }
+
     SSPSTAT = 0x40;		/* Data change on rising edge of clk , BF=0*/
     SSPCON1 = 0x24;		/* Slave mode,Serial enable, idle state 
 				high for clk */ 

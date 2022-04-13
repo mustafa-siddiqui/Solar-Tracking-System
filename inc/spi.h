@@ -1,6 +1,6 @@
 /**
  * @file    spi.h
- * @author  Ali Choudhry
+ * @author  Ali Choudhry & Mustafa Siddiqui
  * @brief   Header file for SPI communication on PIC18 MCU.
  * @date    04/10/2022
  * 
@@ -11,8 +11,15 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
-#define CS LATA5
+#define CS  LATA5 /* double check if CS is LATA5, I think it is RE2; A5 is SS (for slave mode operations) */
 #define LED LATD
+/* arbitrary pins selected for now */
+#define SS1 LATD5
+#define SS2 LATD6
+
+/* slave select macros */
+#define ACCELEROMETER   1
+#define MAGNETOMETER    2
 
 /**
  * @brief 
@@ -23,10 +30,10 @@ void SPI_Init_Master(void);
 
 /**
  * @brief 
- * @param
+ * @param   int slave: select which slave to communicate with.
  * @return
  */
-void SPI_Init_Slave(void);
+void SPI_Init_Slave(int slave);
 
 /**
  * @brief 
