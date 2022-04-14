@@ -54,4 +54,21 @@ void _SPI_init(void);
  */
 void _SPI_selectSlave(int slave);
 
+/**
+ * @brief   Transmit 8 bits of data to selected slave device.
+ * @param   data: 1 byte
+ * @param   slave: accelerometer or  magnetometer
+ * @return  NULL
+ */
+void _SPI_write(unsigned char data, int slave);
+
+/**
+ * @brief   Receive n bits of data where n = length / 8.
+ *          i.e. length = number of bytes to receive
+ * @param   data: passed by reference, data received is stored here 
+ * @param   length: size of data
+ * @return  NULL
+ */
+void _SPI_read(char* data, int length);
+
 #endif /* _SPI_H_*/

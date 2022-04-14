@@ -79,3 +79,40 @@ void _SPI_selectSlave(int slave) {
             break;
     }
 }
+
+/* send 8 bits from PIC18 */
+void _SPI_write(unsigned char data, int slave) {
+    // select appropriate slave device
+    _SPI_selectSlave(slave);
+
+    // transfer data to SSPBUF register and wait for transmission
+    // to complete
+    SSPBUF = data;
+    while (!PIR1bits.SSPIF) {}
+
+    // clear interrupt flag
+    PIR1bits.SSPIF = 0;
+}
+
+/* read n bits of data; n = length/8 */
+void _SPI_read(char* data, int length) {
+    unsigned char data;
+    unsigned int complete = 0;
+    unsigned int numBytes = 0;
+
+    while (!complete) {
+        // if data is there in SSPBUF
+        // TODO: might need to factor in interrupt bit as well
+        if (SSPSTATbits.BF) {
+            data = SSPBUF;
+            numBytes++;
+
+            if (numBytes == length)
+                complete = 1;
+        }
+    }
+
+    // TODO: NOT SURE atm if overflow bit needs to be cleared
+    // clear buffer full status bit
+    SSPSTATbits.BF = 0;
+}
