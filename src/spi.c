@@ -96,15 +96,15 @@ void _SPI_write(unsigned char data, int slave) {
 
 /* read n bits of data; n = length*8 */
 void _SPI_read(char* data, int length) {
-    unsigned char data;
     unsigned int complete = 0;
     unsigned int numBytes = 0;
+    int i = length - 1;
 
     while (!complete) {
         // if data is there in SSPBUF
         // TODO: might need to factor in interrupt bit as well
         if (SSPSTATbits.BF) {
-            data = SSPBUF;
+            data[i--] = SSPBUF; 
             numBytes++;
 
             if (numBytes == length)
