@@ -66,12 +66,12 @@ unsigned char _ACCEL_readFromRegister(unsigned char addr) {
 }
 
 /* get device ID */
-unsigned char _getDeviceID(void) {
+unsigned char _ACCEL_getDeviceID(void) {
     return _ACCEL_readFromRegister(_ADDR_DEVID);
 }
 
 /* enable measurement mode */
-void _enableMeasureMode(void) {
+void _ACCEL_enableMeasureMode(void) {
     // set bit D3 of POWER_CTL register
     // read from register, modify the specific bit, and write
     // => this is done so that other bits are not changed in the process
@@ -81,7 +81,7 @@ void _enableMeasureMode(void) {
 }
 
 /* enable standby mode */
-void _enableStandbyMode(void) {
+void _ACCEL_enableStandbyMode(void) {
     // clear bit D3 of POWER_CTL register
     unsigned char reg = _ACCEL_readFromRegister(_ADDR_POWER_CTL);
     CLEAR(reg, 2);
@@ -89,7 +89,7 @@ void _enableStandbyMode(void) {
 }
 
 /* get current x, y, z axis readings */
-int* _getCurrentReading(void) {
+int* _ACCEL_getCurrentReading(void) {
     // TODO
 }
 
@@ -114,7 +114,7 @@ int initAccel(void) {
     //      => default value is 0x0A which translates to 100 Hz, let's keep it at that atm
 
     // return 0 if cannot correctly read register
-    if (_getDeviceID() != 0xE5) 
+    if (_ACCEL_getDeviceID() != 0xE5) 
         return 0;
     
     return 1;
