@@ -58,9 +58,8 @@ unsigned char _ACCEL_readFromRegister(unsigned char addr) {
     _SPI_write(dataByte_2, ACCELEROMETER);
 
     // receive from MISO line
-    int length = 1;
-    unsigned char data[length];
-    _SPI_read(data, length);
+    unsigned char data[1];
+    _SPI_read(data, 1);
 
     return data[0];
 }
@@ -98,7 +97,7 @@ int initAccel(void) {
     // set internal frequency to 8 MHz for SPI communication
     // NOTE: might need to reduce it to 4 MHz as accelerometer doesn't support that much speed
     OSCCON = 0x72;
-    _enableMeasureMode();
+    _ACCEL_enableMeasureMode();
     // TODO: set more registers as required
     // data_format reg:
     //      select 4-wire mode -> bit D6 in data_format reg 
