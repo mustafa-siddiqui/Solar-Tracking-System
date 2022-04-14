@@ -94,7 +94,7 @@ void _SPI_write(unsigned char data, int slave) {
     PIR1bits.SSPIF = 0;
 }
 
-/* read n bits of data; n = length/8 */
+/* read n bits of data; n = length*8 */
 void _SPI_read(char* data, int length) {
     unsigned char data;
     unsigned int complete = 0;

@@ -63,7 +63,7 @@ void _SPI_selectSlave(int slave);
 void _SPI_write(unsigned char data, int slave);
 
 /**
- * @brief   Receive n bits of data where n = length / 8.
+ * @brief   Receive n bits of data where n = length * 8.
  *          i.e. length = number of bytes to receive
  * @param   data: passed by reference, data received is stored here 
  * @param   length: size of data
