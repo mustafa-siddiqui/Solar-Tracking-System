@@ -19,7 +19,7 @@ int main(void) {
     initPins();
 
     // initialize PIC18 as master for SPI
-    _SPI_init();
+    initSPI();
 
     // initialize accelerometer for communication
     int status = initAccel();
