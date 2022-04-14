@@ -12,12 +12,12 @@
 #define _SPI_H_
 
 /* Serial Port Pins */
-#define SDI TRISCbits.TRISC4  /* serial data in */
-#define SDO TRISCbits.TRISC5  /* serial data out */
-#define SCK TRISCbits.TRISC3  /* serial clock */
+#define _SPI_SDI TRISCbits.TRISC4  /* serial data in */
+#define _SPI_SDO TRISCbits.TRISC5  /* serial data out */
+#define _SPI_SCK TRISCbits.TRISC3  /* serial clock */
 
-#define CS1 LATEbits.LATE2  /* chip select 1 */
-#define CS2 LATDbits.LATD6  /* chip select 2 */
+#define _SPI_CS1 LATEbits.LATE2  /* chip select 1 */
+#define _SPI_CS2 LATDbits.LATD6  /* chip select 2 */
 
 /* macros to choose slave */
 #define ACCELEROMETER   1
@@ -69,6 +69,6 @@ void _SPI_write(unsigned char data, int slave);
  * @param   length: size of data
  * @return  NULL
  */
-void _SPI_read(char* data, int length);
+void _SPI_read(unsigned char* data, int length);
 
 #endif /* _SPI_H_*/

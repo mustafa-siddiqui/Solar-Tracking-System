@@ -16,13 +16,13 @@
 void _SPI_enableIO(void) {
     // keep SCK as input while SSPEN is configured
     // when done, set as output
-    SCK = 1;
+    _SPI_SCK = 1;
     SSPCON1bits.SSPEN = 1;
-    SCK = 0;
+    _SPI_SCK = 0;
 
     // SDI is automatically configured but just in case
-    SDI = 1;    // input
-    SDO = 0;    // output
+    _SPI_SDI = 1;    // input
+    _SPI_SDO = 0;    // output
 }
 
 /* disable serial port function */
@@ -30,9 +30,9 @@ void _SPI_disableIO(void) {
     SSPCON1bits.SSPEN = 0;
     
     // return pins to default state: output
-    SCK = 0;
-    SDO = 0;
-    SDI = 0;
+    _SPI_SCK = 0;
+    _SPI_SDO = 0;
+    _SPI_SDI = 0;
 }
 
 /* configure as master */
@@ -67,17 +67,17 @@ void initSPI(void) {
 void _SPI_selectSlave(int slave) {
     switch (slave) {
         case ACCELEROMETER:
-            CS1 = 1;
-            CS2 = 0;
+            _SPI_CS1 = 1;
+            _SPI_CS2 = 0;
             break;
         case MAGNETOMETER:
-            CS1 = 0;
-            CS2 = 1;
+            _SPI_CS1 = 0;
+            _SPI_CS2 = 1;
             break;
         default:
             // don't select any if incorrect slave
-            CS1 = 0;
-            CS2 = 0;
+            _SPI_CS1 = 0;
+            _SPI_CS2 = 0;
             break;
     }
 }
@@ -97,7 +97,7 @@ void _SPI_write(unsigned char data, int slave) {
 }
 
 /* read n bits of data; n = length*8 */
-void _SPI_read(char* data, int length) {
+void _SPI_read(unsigned char* data, int length) {
     unsigned int complete = 0;
     unsigned int numBytes = 0;
     int i = length - 1;
