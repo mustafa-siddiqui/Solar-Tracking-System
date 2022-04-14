@@ -1,8 +1,8 @@
 /**
  * @file    spi.c
- * @author  Ali Choudhry
+ * @author  Mustafa Siddiqui
  * @brief   Function defitions for SPI communication on PIC18 MCU.
- * @date    04/10/2022
+ * @date    04/14/2022
  * 
  * @copyright Copyright (c) 2022
  * 
