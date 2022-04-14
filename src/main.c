@@ -9,6 +9,8 @@
  */
 
 #include "../inc/init.h"
+#include "../inc/spi.h"
+#include "../inc/accel.h"
 //-//
 #include <xc.h>
 
@@ -16,17 +18,19 @@ int main(void) {
     // set all pins as digital output
     initPins();
 
+    // initialize PIC18 as master for SPI
+    _SPI_init();
+
+    // initialize accelerometer for communication
+    int status = initAccel();
+
+    // turn off LEDs at start
+    LATDbits.LATD2 = 0;
+    LATDbits.LATD3 = 0;
     while (1) {
-        // turn on LEDs and delay
-        LATDbits.LATD2 = 1;
-        LATDbits.LATD3 = 1;
-        _delay(1000);
-
-        // turn off LEDs and delay
-        LATDbits.LATD2 = 0;
-        LATDbits.LATD3 = 0;
-        _delay(1000);
-
+        if (status) {
+            LATDbits.LATD2 = 1;
+        }
     }
 
     return 0;
