@@ -40,7 +40,7 @@ void _SPI_init(void) {
     // SSPEN is set in _SPI_enableIO(), don't write again
     SSPCON1bits.WCOL = 0;   // write collision detection bit => no collison
     SSPCON1bits.SSPOV = 0;  // recv overflow indicator bit => no overflow
-    SSPCON1bits.CKP = 0;    // clock polarity select bit => idle state = low level 
+    SSPCON1bits.CKP = 1;    // clock polarity select bit => idle state = high level (in line with accelerometer)
 
     // SSPM3:SSPM0: synchronous serial port mode select bits
     // 0010 => spi master mode, clock = f_osc / 64 
@@ -50,10 +50,10 @@ void _SPI_init(void) {
     SSPCON1bits.SSPM0 = 0;
 
     // bit7 = 0: sample bit => input data sampled at middle of data output time
-    // bit6 = 1: spi clock select bit => transmit occurs on transition from 
-    //           active to idle clock state
+    // bit6 = 0: spi clock select bit => transmit occurs on transition from 
+    //           idle to active clock state (falling edge in this case)
     // bit0 = 0: buffer full status bit => SSPBUFF is empty 
-    SSPSTAT = 0x40;
+    SSPSTAT = 0x00;
 
     // when data (8 bits) is received, SSPSTATbits.BF (buffer full bit) &
     // PIR1bits.SSPIF (interrupt flag bit) are set
