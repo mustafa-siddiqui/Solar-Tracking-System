@@ -36,7 +36,9 @@ void _SPI_disableIO(void) {
 }
 
 /* configure as master */
-void _SPI_init(void) {
+void initSPI(void) {
+    _SPI_enableIO();
+
     // SSPEN is set in _SPI_enableIO(), don't write again
     SSPCON1bits.WCOL = 0;   // write collision detection bit => no collison
     SSPCON1bits.SSPOV = 0;  // recv overflow indicator bit => no overflow

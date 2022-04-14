@@ -44,7 +44,7 @@ void _SPI_disableIO(void);
  * @param   NULL
  * @return  NULL
  */
-void _SPI_init(void);
+void initSPI(void);
 
 /**
  * @brief   Selects slave given that the PIC18 is in master mode.
