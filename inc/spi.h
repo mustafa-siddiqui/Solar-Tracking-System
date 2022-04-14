@@ -48,11 +48,10 @@ void _SPI_init(void);
 
 /**
  * @brief   Selects slave given that the PIC18 is in master mode.
- * 
+ *          => DOES NOT configure slave device <=
  * @param   slave: accelerometer or magnetometer
  * @return  NULL
  */
 void _SPI_selectSlave(int slave);
-
 
 #endif /* _SPI_H_*/

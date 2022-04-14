@@ -61,6 +61,7 @@ void _SPI_init(void) {
     PIR1bits.SSPIF = 0;
 }
 
+/* select slave device */
 void _SPI_selectSlave(int slave) {
     switch (slave) {
         case ACCELEROMETER:
