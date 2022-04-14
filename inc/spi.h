@@ -11,52 +11,48 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
-#define CS  LATA5 /* double check if CS is LATA5, I think it is RE2; A5 is SS (for slave mode operations) */
-#define LED LATD
-/* arbitrary pins selected for now */
-#define SS1 LATD5
-#define SS2 LATD6
+/* Serial Port Pins */
+#define SDI TRISCbits.TRISC4  /* serial data in */
+#define SDO TRISCbits.TRISC5  /* serial data out */
+#define SCK TRISCbits.TRISC3  /* serial clock */
 
-/* slave select macros */
+#define CS1 LATEbits.LATE2  /* chip select 1 */
+#define CS2 LATDbits.LATD6  /* chip select 2 */
+
+/* macros to choose slave */
 #define ACCELEROMETER   1
 #define MAGNETOMETER    2
 
 /**
- * @brief 
- * @param
- * @return
+ * @brief   Enable SPI IO i.e. basically enable the serial port on the PIC18.
+ * @param   NULL
+ * @return  NULL
  */
-void SPI_Init_Master(void);
+void _SPI_enableIO(void);
 
 /**
- * @brief 
- * @param   int slave: select which slave to communicate with.
- * @return
+ * @brief   Disable serial port function.
+ * @param   NULL
+ * @return  NULL
  */
-void SPI_Init_Slave(int slave);
+void _SPI_disableIO(void);
 
 /**
- * @brief 
- * @param
- * @return
+ * @brief   Initialize the SPI module on the PIC18. 
+ *          Master mode, clock polarity, data input sample phase, clock edge,
+ *          and clock rate are set.
+ * @param   NULL
+ * @return  NULL
  */
-void SPI_Write(unsigned char x);
+void _SPI_init(void);
 
 /**
- * @brief 
- * @param
- * @return
+ * @brief   Selects slave given that the PIC18 is in master mode.
+ * 
+ * @param   slave: accelerometer or magnetometer
+ * @return  NULL
  */
-unsigned char SPI_Read(void);
+void _SPI_selectSlave(int slave);
 
-/* => replace this to use in-built _delay() function <=
-      can make a function like delay_1ms() if specific delay needed
-*/
-/**
- * @brief 
- * @param
- * @return
- */
-void MSdelay(unsigned int val);
 
 #endif /* _SPI_H_*/

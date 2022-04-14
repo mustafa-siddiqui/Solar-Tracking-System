@@ -12,86 +12,69 @@
 //-//
 #include <xc.h>
 
-/* initialize master module */
-void SPI_Init_Master(void) {
-    /* PORT definition for SPI pins*/    
-    TRISCbits.TRISC4 = 1;	/* RC4 as input(SDI) */
-    TRISCbits.TRISC3 = 0;		/* RC3 as output(SCK) */
-    TRISAbits.TRISA5 = 0;		/* RA5 as a output(SS) */
-    TRISCbits.TRISC5 = 0;		/* RC5 as output(SDO) */
+/* enable serial port function */
+void _SPI_enableIO(void) {
+    // keep SCK as input while SSPEN is configured
+    // when done, set as output
+    SCK = 1;
+    SSPCON1bits.SSPEN = 1;
+    SCK = 0;
 
-    /* To initialize SPI Communication configure following Register*/
-    CS = 1; /* CHECK: double-check if this is indeed the right pin for master operation. I think it should be the CS pin. */
-    SSPSTAT = 0x40;		/* Data change on rising edge of clk , BF=0*/
-    SSPCON1 = 0x22;		/* Master mode,Serial enable,
-                            idle state low for clk, fosc/64 */ 
-    PIR1bits.SSPIF = 0;
-
-    /* Disable the ADC channel which are on for multiplexed pin when
-    used as an input */    
-    ADCON0 = 0;			/* This is for de-multiplexed the 
-                            SCL and SDI from analog pins*/
-    ADCON1 = 0x0F;		/* This makes all pins as digital I/O */
+    // SDI is automatically configured but just in case
+    SDI = 1;    // input
+    SDO = 0;    // output
 }
 
-/* initialize slave module */
-void SPI_Init_Slave(int slave) {
-    /* PORT definition for SPI pins*/    
-    TRISCbits.TRISC4 = 1;	/* RC4 as output(SDI) */
-    TRISCbits.TRISC3 = 1;		/* RC3 as input(SCK) */
-    TRISAbits.TRISA5 = 1;		/* RA5 as input(SS) */
-    TRISCbits.TRISC5 = 0;		/* RC5 as input(SDO) */
+/* disable serial port function */
+void _SPI_disableIO(void) {
+    SSPCON1bits.SSPEN = 0;
+    
+    // return pins to default state: output
+    SCK = 0;
+    SDO = 0;
+    SDI = 0;
+}
 
-    /* To initialize SPI Communication configure following Register*/
-    CS = 1; // doubtful if this is needed in slave initialization (considering this is CS and not SS)
+/* configure as master */
+void _SPI_init(void) {
+    // SSPEN is set in _SPI_enableIO(), don't write again
+    SSPCON1bits.WCOL = 0;   // write collision detection bit => no collison
+    SSPCON1bits.SSPOV = 0;  // recv overflow indicator bit => no overflow
+    SSPCON1bits.CKP = 0;    // clock polarity select bit => idle state = low level 
+
+    // SSPM3:SSPM0: synchronous serial port mode select bits
+    // 0010 => spi master mode, clock = f_osc / 64 
+    SSPCON1bits.SSPM3 = 0;
+    SSPCON1bits.SSPM2 = 0;
+    SSPCON1bits.SSPM1 = 1;
+    SSPCON1bits.SSPM0 = 0;
+
+    // bit7 = 0: sample bit => input data sampled at middle of data output time
+    // bit6 = 1: spi clock select bit => transmit occurs on transition from 
+    //           active to idle clock state
+    // bit0 = 0: buffer full status bit => SSPBUFF is empty 
+    SSPSTAT = 0x40;
+
+    // when data (8 bits) is received, SSPSTATbits.BF (buffer full bit) &
+    // PIR1bits.SSPIF (interrupt flag bit) are set
+    // => we will use SSPIF to detect when transfer is complete
+    PIR1bits.SSPIF = 0;
+}
+
+void _SPI_selectSlave(int slave) {
     switch (slave) {
         case ACCELEROMETER:
-            SS1 = 1;
-            SS2 = 0;
+            CS1 = 1;
+            CS2 = 0;
             break;
         case MAGNETOMETER:
-            SS1 = 0;
-            SS2 = 1;
+            CS1 = 0;
+            CS2 = 1;
             break;
         default:
-            // do not initialize if incorrect slave
-            SS1 = 0;
-            SS2 = 0;
+            // don't select any if incorrect slave
+            CS1 = 0;
+            CS2 = 0;
             break;
     }
-
-    SSPSTAT = 0x40;		/* Data change on rising edge of clk , BF=0*/
-    SSPCON1 = 0x24;		/* Slave mode,Serial enable, idle state 
-				high for clk */ 
-    PIR1bits.SSPIF = 0;
-
-    /* Disable the ADC channel which are on for multiplexed pin 
-    when used as an input */    
-    ADCON0 = 0;			/* This is for de-multiplexed the SCL
-				and SDI from analog pins*/
-    ADCON1 = 0x0F;		/* This makes all pins as digital I/O */    
-}
-
-/* transmit data */
-void SPI_Write(unsigned char x) {
-    unsigned char data_flush;
-    SSPBUF = x;			/* Copy data in SSBUF to transmit */
-    while(!PIR1bits.SSPIF);	/* Wait for complete 1 byte transmission */
-    PIR1bits.SSPIF = 0;		/* Clear SSPIF flag */
-    data_flush = SSPBUF;		/* Flush the data */
-}
-
-/* read data received */
-unsigned char SPI_Read(void) {    
-    SSPBUF = 0xff;		/* Copy flush byte in SSBUF */
-    while(!PIR1bits.SSPIF);	/* Wait for complete 1 byte transmission */
-    PIR1bits.SSPIF = 0;
-    return(SSPBUF);		/* Return received byte */   
-}
-
-/* Delay of 1 ms for 8MHz Frequency */
-void MSdelay(unsigned int val) {
-     unsigned int i,j;
-        for(i=0;i<val;i++)
-            for(j=0;j<165;j++);
 }
