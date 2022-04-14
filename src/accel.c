@@ -9,7 +9,7 @@
  */
 
 #include "../inc/accel.h"
-#include "../inc/spi.h"     // SPI_*() functions
+#include "../inc/spi.h"     // _SPI_*() functions
 //-//
 #include <xc.h>             // OSCCON
 
@@ -73,15 +73,19 @@ unsigned char _getDeviceID(void) {
 /* enable measurement mode */
 void _enableMeasureMode(void) {
     // set bit D3 of POWER_CTL register
-    unsigned char D3Set = SET(POWER_CTL, 3);
-    SPI_Write(D3Set);
+    // read from register, modify the specific bit, and write
+    // => this is done so that other bits are not changed in the process
+    unsigned char reg = _ACCEL_readFromRegister(_ADDR_POWER_CTL);
+    SET(reg, 2);
+    _ACCEL_writeToRegister(_ADDR_POWER_CTL, reg);
 }
 
 /* enable standby mode */
 void _enableStandbyMode(void) {
     // clear bit D3 of POWER_CTL register
-    unsigned char D3Clear = CLEAR(POWER_CTL, 3);
-    SPI_Write(D3Clear);
+    unsigned char reg = _ACCEL_readFromRegister(_ADDR_POWER_CTL);
+    CLEAR(reg, 2);
+    _ACCEL_writeToRegister(_ADDR_POWER_CTL, reg);
 }
 
 /* get current x, y, z axis readings */
@@ -92,6 +96,7 @@ int* _getCurrentReading(void) {
 /* initialize accelerometer module */
 int initAccel(void) {
     // set internal frequency to 8 MHz for SPI communication
+    // NOTE: might need to reduce it to 4 MHz as accelerometer doesn't support that much speed
     OSCCON = 0x72;
     _enableMeasureMode();
     // TODO: set more registers as required
@@ -99,9 +104,14 @@ int initAccel(void) {
     //      select 4-wire mode -> bit D6 in data_format reg 
     //      (full_res -- bit D3 -- might need to be set also)
     //      range (bits D1 & D0) specify the range -- 2g, 4g, etc
+    // => [self_test, spi, int_invert, 0, full_res, justify, range<1:0>]
+    unsigned char reg_dataFormat = 0x0C;
+    _ACCEL_writeToRegister(_ADDR_DATA_FORMAT, reg_dataFormat);
+
     // max SPI clock speed = 5 MHz => CONFLICT with current 8 MHz
     // multiple byte reads possible -> set MB bit in first byte transfer
     // select rate_bits in bw_rate to set output data rate
+    //      => default value is 0x0A which translates to 100 Hz, let's keep it at that atm
 
     // return 0 if cannot correctly read register
     if (_getDeviceID() != 0xE5) 

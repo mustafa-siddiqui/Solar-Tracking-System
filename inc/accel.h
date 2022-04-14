@@ -28,6 +28,7 @@
 #define _ADDR_DATA_Z0     0x36  /* z-axis data 0 */
 #define _ADDR_DATA_Z1     0x37  /* z-axis data 1 */
 
+/* might not need this after all */
 #define DEVID       (*((volatile unsigned char*) _ADDR_DEVID))
 #define BW_RATE     (*((volatile unsigned char*) _ADDR_BW_RATE))
 #define POWER_CTL   (*((volatile unsigned char*) _ADDR_POWER_CTL))
