@@ -14,10 +14,13 @@
 //-//
 #include <xc.h>
 
+#define _XTAL_FREQ 4000000  // 4 MHz
+
 int main(void) {
     // set all pins as digital output
     initPins();
-
+    //__delay_ms(10);
+    _delay(10000);
     // initialize PIC18 as master for SPI
     initSPI();
 
