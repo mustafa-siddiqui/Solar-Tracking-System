@@ -14,26 +14,49 @@
 //-//
 #include <xc.h>
 
-#define _XTAL_FREQ 4000000  // 4 MHz
+#define _XTAL_FREQ 8000000  // 4 MHz
 
 int main(void) {
+    // set clock freq to 8 MHz
+    OSCCON = 0x72;
+    
     // set all pins as digital output
     initPins();
-    //__delay_ms(10);
-    _delay(10000);
+
+    
     // initialize PIC18 as master for SPI
     initSPI();
-
+    LATDbits.LATD2 = 1;
+    LATDbits.LATD3 = 1;
+    _delay(1000000);
+    _delay(1000000);
+    
     // initialize accelerometer for communication
     int status = initAccel();
-
+    //int status = 1;
+    //unsigned char dataRecv = 0x22;
     // turn off LEDs at start
     LATDbits.LATD2 = 0;
     LATDbits.LATD3 = 0;
+    _delay(1000000);
+    _delay(1000000);
+    
     while (1) {
         if (status) {
             LATDbits.LATD2 = 1;
         }
+        /*
+        _delay(1000000);
+        //LATDbits.LATD3 = 0;
+        _delay(1000000);
+        _SPI_write(0x00, ACCELEROMETER);
+        _SPI_read(&dataRecv, 1);
+        _delay(1000000);
+        //LATDbits.LATD3 = 0;
+        if (!(dataRecv & 0x22)) {
+            status = 0;
+        }
+        */
     }
 
     return 0;

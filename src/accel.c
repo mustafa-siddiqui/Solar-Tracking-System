@@ -47,18 +47,14 @@ void _ACCEL_writeToRegister(unsigned char addr, unsigned char data) {
 
 /* read from register on accelerometer */
 unsigned char _ACCEL_readFromRegister(unsigned char addr) {
+    unsigned char data[1] = {0x00};
     // first byte consists of R/W, MB, and address of register to read
     unsigned char dataByte_1 = _ACCEL_createDataByte1(1, 0, addr);
 
-    // dummy data for transmission
-    unsigned char dataByte_2 = 0x00;
-
     // write on MOSI line
     _SPI_write(dataByte_1, ACCELEROMETER);
-    _SPI_write(dataByte_2, ACCELEROMETER);
 
     // receive from MISO line
-    unsigned char data[1];
     _SPI_read(data, 1);
 
     return data[0];
@@ -96,7 +92,7 @@ int* _ACCEL_getCurrentReading(void) {
 int initAccel(void) {
     // set internal frequency to 8 MHz for SPI communication
     // NOTE: might need to reduce it to 4 MHz as accelerometer doesn't support that much speed
-    OSCCON = 0x72;
+    //OSCCON = 0x72;
     _ACCEL_enableMeasureMode();
     // TODO: set more registers as required
     // data_format reg:
@@ -112,11 +108,11 @@ int initAccel(void) {
     // select rate_bits in bw_rate to set output data rate
     //      => default value is 0x0A which translates to 100 Hz, let's keep it at that atm
 
-    // return 0 if cannot correctly read register
-    if (_ACCEL_getDeviceID() != 0xE5) 
-        return 0;
+    // return 1 if correctly read register
+    if (_ACCEL_getDeviceID() & 0xE5) 
+        return 1;
     
-    return 1;
+    return 0;
 }
 
 /* get zenith angle value */
