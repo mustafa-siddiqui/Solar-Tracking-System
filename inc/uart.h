@@ -21,7 +21,7 @@ void UART_send_str(const char *);
 void MSdelay(unsigned int);
 void UART_RX_Handle(void);
 
-char* UART_buffer[100];
+char UART_buffer[100];
 
 
 
