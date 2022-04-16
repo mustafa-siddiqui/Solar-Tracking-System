@@ -11,7 +11,7 @@
 #include "../inc/accel.h"
 #include "../inc/spi.h"     // _SPI_*() functions
 //-//
-#include <xc.h>             // OSCCON
+#include <xc.h>
 
 /* create first data byte for SDI line for accelerometer */
 unsigned char _ACCEL_createDataByte1(int RW, int MB, unsigned char addr) {
@@ -47,7 +47,9 @@ void _ACCEL_writeToRegister(unsigned char addr, unsigned char data) {
 
 /* read from register on accelerometer */
 unsigned char _ACCEL_readFromRegister(unsigned char addr) {
+    // to store received data
     unsigned char data[1] = {0x00};
+
     // first byte consists of R/W, MB, and address of register to read
     unsigned char dataByte_1 = _ACCEL_createDataByte1(1, 0, addr);
 
@@ -90,11 +92,8 @@ int* _ACCEL_getCurrentReading(void) {
 
 /* initialize accelerometer module */
 int initAccel(void) {
-    // set internal frequency to 8 MHz for SPI communication
-    // NOTE: might need to reduce it to 4 MHz as accelerometer doesn't support that much speed
-    //OSCCON = 0x72;
     _ACCEL_enableMeasureMode();
-    // TODO: set more registers as required
+
     // data_format reg:
     //      select 4-wire mode -> bit D6 in data_format reg 
     //      (full_res -- bit D3 -- might need to be set also)
@@ -103,6 +102,8 @@ int initAccel(void) {
     unsigned char reg_dataFormat = 0x0C;
     _ACCEL_writeToRegister(_ADDR_DATA_FORMAT, reg_dataFormat);
 
+    // set internal frequency to 8 MHz for SPI communication
+    // NOTE: might need to reduce it to 4 MHz as accelerometer doesn't support that much speed
     // max SPI clock speed = 5 MHz => CONFLICT with current 8 MHz
     // multiple byte reads possible -> set MB bit in first byte transfer
     // select rate_bits in bw_rate to set output data rate
