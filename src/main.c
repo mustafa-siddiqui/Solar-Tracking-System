@@ -11,10 +11,12 @@
 #include "../inc/init.h"
 #include "../inc/spi.h"
 #include "../inc/accel.h"
+#include "../inc/uart.h"
 //-//
 #include <xc.h>
-
-#define _XTAL_FREQ 8000000  // 4 MHz
+#include <stdio.h>  // sprintf()
+    
+#define _XTAL_FREQ 8000000  // 8 MHz
 
 int main(void) {
     // set clock freq to 8 MHz
@@ -22,41 +24,43 @@ int main(void) {
     
     // set all pins as digital output
     initPins();
-
+    
+    // turn on LEDs to indicate start of init process
+    LATDbits.LATD2 = 1;
+    LATDbits.LATD3 = 1;
     
     // initialize PIC18 as master for SPI
     initSPI();
-    LATDbits.LATD2 = 1;
-    LATDbits.LATD3 = 1;
-    _delay(1000000);
-    _delay(1000000);
+    _delay(10000);
+    
+    // initialize UART module
+    UART_RX_Init();
+    UART_send_str(" UART initialized...");
+    _delay(10000);
     
     // initialize accelerometer for communication
     int status = initAccel();
-    //int status = 1;
-    //unsigned char dataRecv = 0x22;
-    // turn off LEDs at start
+    
+    // turn off LEDs to indicate end of init process
     LATDbits.LATD2 = 0;
     LATDbits.LATD3 = 0;
-    _delay(1000000);
-    _delay(1000000);
+    _delay(10000);
     
     while (1) {
         if (status) {
-            LATDbits.LATD2 = 1;
+            unsigned char deviceID = _ACCEL_getDeviceID();
+            char str[20];
+            sprintf(str, " Device ID: %x ", deviceID);
+            UART_send_str(str);
+            _delay(10000);
         }
-        /*
-        _delay(1000000);
-        //LATDbits.LATD3 = 0;
-        _delay(1000000);
-        _SPI_write(0x00, ACCELEROMETER);
-        _SPI_read(&dataRecv, 1);
-        _delay(1000000);
-        //LATDbits.LATD3 = 0;
-        if (!(dataRecv & 0x22)) {
-            status = 0;
-        }
-        */
+        
+        // test spi communication
+        unsigned char dataFormatReg = _ACCEL_readFromRegister(_ADDR_DATA_FORMAT);
+        char strToSend[20];
+        sprintf(strToSend, " Data Format: %x ", dataFormatReg);
+        UART_send_str(strToSend);
+        _delay(10000);
     }
 
     return 0;

@@ -9,6 +9,7 @@
  */
 
 #include "../inc/spi.h"
+#include "../inc/uart.h"
 //-//
 #include <xc.h>
 
@@ -38,11 +39,11 @@ void _SPI_disableIO(void) {
 /* configure as master */
 void initSPI(void) {
     _SPI_enableIO();
-
+    
     // SSPEN is set in _SPI_enableIO(), don't write again
     SSPCON1bits.WCOL = 0;   // write collision detection bit => no collison
     SSPCON1bits.SSPOV = 0;  // recv overflow indicator bit => no overflow
-    SSPCON1bits.CKP = 1;    // clock polarity select bit => idle state = high level (in line with accelerometer)
+    SSPCON1bits.CKP = 0;    // clock polarity select bit => idle state = high level (1), low level (0)
 
     // SSPM3:SSPM0: synchronous serial port mode select bits
     // 0010 => spi master mode, clock = f_osc / 64 
@@ -50,17 +51,22 @@ void initSPI(void) {
     SSPCON1bits.SSPM2 = 0;
     SSPCON1bits.SSPM1 = 1;
     SSPCON1bits.SSPM0 = 0;
-
+    
+    // Note: at this stage, SSPCON1 = 0x22;
+    
     // bit7 = 0: sample bit => input data sampled at middle of data output time
-    // bit6 = 0: spi clock select bit => transmit occurs on transition from 
-    //           idle to active clock state (falling edge in this case)
+    // bit6 = 1: spi clock select bit => transmit occurs on transition from 
+    //           idle to active clock state (0), opposite for (1)
     // bit0 = 0: buffer full status bit => SSPBUFF is empty 
-    SSPSTAT = 0x00;
-
+    SSPSTAT = 0x40;
+    
     // when data (8 bits) is received, SSPSTATbits.BF (buffer full bit) &
     // PIR1bits.SSPIF (interrupt flag bit) are set
     // => we will use SSPIF to detect when transfer is complete
     PIR1bits.SSPIF = 0;
+    
+    //ADCON0 = 0;
+    //ADCON1 = 0x0F;
 }
 
 /* select slave device */
@@ -106,6 +112,7 @@ void _SPI_read(unsigned char* data, int length) {
         // if data is there in SSPBUF
         // TODO: might need to factor in interrupt bit as well
         if (SSPSTATbits.BF) {
+            UART_send_str("Data received in SSPBUF");
             data[i--] = SSPBUF; 
             numBytes++;
 

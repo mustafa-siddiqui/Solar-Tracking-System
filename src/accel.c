@@ -58,7 +58,7 @@ unsigned char _ACCEL_readFromRegister(unsigned char addr) {
 
     // receive from MISO line
     _SPI_read(data, 1);
-
+    
     return data[0];
 }
 
@@ -110,7 +110,7 @@ int initAccel(void) {
     //      => default value is 0x0A which translates to 100 Hz, let's keep it at that atm
 
     // return 1 if correctly read register
-    if (_ACCEL_getDeviceID() & 0xE5) 
+    if (_ACCEL_getDeviceID() == 0xE5) 
         return 1;
     
     return 0;
