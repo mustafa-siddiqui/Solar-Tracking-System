@@ -28,17 +28,7 @@
 #define _ADDR_DATA_Z0     0x36  /* z-axis data 0 */
 #define _ADDR_DATA_Z1     0x37  /* z-axis data 1 */
 
-/* might not need this after all */
-#define DEVID       (*((volatile unsigned char*) _ADDR_DEVID))
-#define BW_RATE     (*((volatile unsigned char*) _ADDR_BW_RATE))
-#define POWER_CTL   (*((volatile unsigned char*) _ADDR_POWER_CTL))
-#define DATA_FORMAT (*((volatile unsigned char*) _ADDR_DATA_FORMAT))
-#define DATA_X0     (*((volatile unsigned char*) _ADDR_DATA_X0))
-#define DATA_X1     (*((volatile unsigned char*) _ADDR_DATA_X1))
-#define DATA_Y0     (*((volatile unsigned char*) _ADDR_DATA_Y0))
-#define DATA_Y1     (*((volatile unsigned char*) _ADDR_DATA_Y1))
-#define DATA_Z0     (*((volatile unsigned char*) _ADDR_DATA_Z0))
-#define DATA_Z1     (*((volatile unsigned char*) _ADDR_DATA_Z1))
+#define DEVID   (0xE5)  /* constant value for device ID of accelerometer */
 
 /* Utility Macros to set/clear indvidual bits in a register */
 #define SET(reg, bitNum)   (reg |= (1 << bitNum))
