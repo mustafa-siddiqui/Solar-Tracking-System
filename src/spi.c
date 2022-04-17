@@ -83,8 +83,8 @@ void _SPI_selectSlave(int slave) {
             break;
         default:
             // don't select any if incorrect slave
-            _SPI_CS1 = 0;
-            _SPI_CS2 = 0;
+            _SPI_CS1 = 1;
+            _SPI_CS2 = 1;
             break;
     }
 }
