@@ -23,6 +23,8 @@
 #define ACCELEROMETER   1
 #define MAGNETOMETER    2
 
+#define _XTAL_FREQ 8000000
+
 /**
  * @brief   Enable SPI IO i.e. basically enable the serial port on the PIC18.
  * @param   NULL
@@ -70,6 +72,7 @@ void _SPI_unselectSlave(int slave);
  * @return  NULL
  */
 void _SPI_write(unsigned char data);
+signed char WriteSPI( unsigned char data_out );
 
 /**
  * @brief   Receive n bits of data where n = length * 8.
@@ -79,5 +82,8 @@ void _SPI_write(unsigned char data);
  * @return  NULL
  */
 void _SPI_read(unsigned char* data, int length);
+unsigned char ReadSPI( unsigned char data );
+
+unsigned char _SPI_readByte(unsigned char dataByte1);
 
 #endif /* _SPI_H_*/

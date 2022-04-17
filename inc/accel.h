@@ -68,23 +68,6 @@ unsigned char _ACCEL_readFromRegister(unsigned char addr);
 unsigned char _ACCEL_getDeviceID(void);
 
 /**
- * @brief   Enable measurement mode on the accelerometer to
- *          enable sensor functions and read values.
- * @param   NULL
- * @return  NULL
- */
-void _ACCEL_enableMeasureMode(void);
-
-/**
- * @brief   Enable standby mode to disable measurement mode &
- *          prevent any measurements from being made. Current
- *          consumption is reduced to 0.1 µA.
- * @param   NULL
- * @return  NULL
- */
-void _ACCEL_enableStandbyMode(void);
-
-/**
  * @brief   Get current x, y, and z axis readings from the
  *          accelerometer.
  * @param   NULL

@@ -118,11 +118,41 @@ void _SPI_unselectSlave(int slave) {
 void _SPI_write(unsigned char data) {
     // transfer data to SSPBUF register and wait for transmission
     // to complete
+    //unsigned char dataFlush;
+    
     SSPBUF = data;
     while (!PIR1bits.SSPIF) {}
 
     // clear interrupt flag
     PIR1bits.SSPIF = 0;
+    
+    //dataFlush = SSPBUF;
+}
+
+/* temp addition from internet */
+signed char WriteSPI( unsigned char data_out )
+{
+    unsigned char TempVar;
+    TempVar = SSPBUF;           // Clears BF
+    PIR1bits.SSPIF = 0;         // Clear interrupt flag
+    SSPCON1bits.WCOL = 0;            //Clear any previous write collision
+    SSPBUF = data_out;           // write byte to SSPBUF register
+    if ( SSPCON1 & 0x80 )        // test if write collision occurred
+        return ( -1 );              // if WCOL bit is set return negative #
+    else
+        while( !PIR1bits.SSPIF );  // wait until bus cycle complete
+    return ( 0 );                // if WCOL bit is not set return non-negative#
+}
+
+/* temp addition as well */
+unsigned char ReadSPI( unsigned char data )
+{
+  unsigned char TempVar;
+  TempVar = SSPBUF;        // Clear BF
+  PIR1bits.SSPIF = 0;      // Clear interrupt flag
+  SSPBUF = data;           // initiate bus cycle
+  while(!PIR1bits.SSPIF);  // wait until cycle complete
+  return ( SSPBUF );       // return with byte read
 }
 
 /* read n bits of data; n = length*8 */
@@ -142,8 +172,16 @@ void _SPI_read(unsigned char* data, int length) {
                 complete = 1;
         }
     }
-
+    //SSPCON1bits.WCOL = 0;
     // TODO: NOT SURE atm if overflow bit needs to be cleared
     // clear buffer full status bit
     SSPSTATbits.BF = 0;
+}
+
+unsigned char _SPI_readByte(unsigned char dataByte1) {
+    SSPBUF = dataByte1;		/* Copy flush data in SSBUF */
+    while(!PIR1bits.SSPIF);	/* Wait for complete 1 byte transmission */
+    PIR1bits.SSPIF=0;		/* Clear SSPIF flag */
+    SSPCON1bits.WCOL = 0;   
+    return(SSPBUF);		/* Return received data.*/ 
 }
