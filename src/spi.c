@@ -71,14 +71,15 @@ void initSPI(void) {
 
 /* select slave device */
 void _SPI_selectSlave(int slave) {
+    // Chip Select pin (~CS) needs to pulled *low* in order to select it
     switch (slave) {
         case ACCELEROMETER:
-            _SPI_CS1 = 1;
-            _SPI_CS2 = 0;
-            break;
-        case MAGNETOMETER:
             _SPI_CS1 = 0;
             _SPI_CS2 = 1;
+            break;
+        case MAGNETOMETER:
+            _SPI_CS1 = 1;
+            _SPI_CS2 = 0;
             break;
         default:
             // don't select any if incorrect slave
