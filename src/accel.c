@@ -36,13 +36,18 @@ unsigned char _ACCEL_createDataByte1(int RW, int MB, unsigned char addr) {
 /* write to register on accelerometer */
 void _ACCEL_writeToRegister(unsigned char addr, unsigned char data) {
     // first byte consists of R/W, MB, and address bits (of the register to write to)
-    unsigned char dataByte_1 = _ACCEL_createDataByte1(0, 0, addr);
-
     // latter byte is data to be written
+    unsigned char dataByte_1 = _ACCEL_createDataByte1(0, 0, addr);
     unsigned char dataByte_2 = data;
 
-    _SPI_write(dataByte_1, ACCELEROMETER);
-    _SPI_write(dataByte_2, ACCELEROMETER);
+    // start transmission by pulling ~CS low
+    _SPI_selectSlave(ACCELEROMETER);
+    
+    _SPI_write(dataByte_1);
+    _SPI_write(dataByte_2);
+
+    // end transmisson by setting ~CS high
+    _SPI_unselectSlave(ACCELEROMETER);
 }
 
 /* read from register on accelerometer */
@@ -53,11 +58,15 @@ unsigned char _ACCEL_readFromRegister(unsigned char addr) {
     // first byte consists of R/W, MB, and address of register to read
     unsigned char dataByte_1 = _ACCEL_createDataByte1(1, 0, addr);
 
-    // write on MOSI line
-    _SPI_write(dataByte_1, ACCELEROMETER);
+    // start transmission by pulling ~CS low
+    _SPI_selectSlave(ACCELEROMETER);
 
-    // receive from MISO line
+    // write on MOSI line & receive on MISO line
+    _SPI_write(dataByte_1);
     _SPI_read(data, 1);
+    
+    // end transmission by setting ~CS high
+    _SPI_unselectSlave(ACCELEROMETER); 
     
     return data[0];
 }
@@ -88,6 +97,7 @@ void _ACCEL_enableStandbyMode(void) {
 /* get current x, y, z axis readings */
 int* _ACCEL_getCurrentReading(void) {
     // TODO
+    return NULL;
 }
 
 /* initialize accelerometer module */
@@ -95,28 +105,26 @@ int initAccel(void) {
     _ACCEL_enableMeasureMode();
 
     // data_format reg:
-    //      select 4-wire mode -> bit D6 in data_format reg 
-    //      (full_res -- bit D3 -- might need to be set also)
-    //      range (bits D1 & D0) specify the range -- 2g, 4g, etc
+    //      select 4-wire mode -> clear bit D6
+    //      full_res mode -> set bit D3
+    //      justify bit -> left-justified (MSB) mode (1), right-justified (0)
+    //      range (bits D1 & D0) specify the range -- 2g, 4g, 8g, or 16g (4g selected)
     // => [self_test, spi, int_invert, 0, full_res, justify, range<1:0>]
-    unsigned char reg_dataFormat = 0x0C;
+    unsigned char reg_dataFormat = 0x0D;
     _ACCEL_writeToRegister(_ADDR_DATA_FORMAT, reg_dataFormat);
 
-    // set internal frequency to 8 MHz for SPI communication
-    // NOTE: might need to reduce it to 4 MHz as accelerometer doesn't support that much speed
-    // max SPI clock speed = 5 MHz => CONFLICT with current 8 MHz
-    // multiple byte reads possible -> set MB bit in first byte transfer
     // select rate_bits in bw_rate to set output data rate
-    //      => default value is 0x0A which translates to 100 Hz, let's keep it at that atm
+    // => default value is 0x0A which translates to 100 Hz, let's keep it at that atm
 
-    // return 1 if correctly read register
-    if (_ACCEL_getDeviceID() == 0xE5) 
-        return 1;
+    // return 0 if incorrect device id
+    if (_ACCEL_getDeviceID() != DEVID) 
+        return 0;
     
-    return 0;
+    return 1;
 }
 
 /* get zenith angle value */
 int getCurrentZenith(void) {
     // TODO
+    return 0;
 }
