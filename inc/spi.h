@@ -47,7 +47,10 @@ void _SPI_disableIO(void);
 void initSPI(void);
 
 /**
- * @brief   Selects slave given that the PIC18 is in master mode.
+ * @brief   Selects slave given that the PIC18 is in master mode by pulling
+ *          ~CS low. Should be set at start of transmission for the duration
+ *          of the transmission. Must be unselected at the end of the
+ *          transmission. => see _SPI_unselectSlave()
  *          => DOES NOT configure slave device <=
  * @param   slave: accelerometer or magnetometer
  * @return  NULL
@@ -55,12 +58,18 @@ void initSPI(void);
 void _SPI_selectSlave(int slave);
 
 /**
- * @brief   Transmit 8 bits of data to selected slave device.
- * @param   data: 1 byte
- * @param   slave: accelerometer or  magnetometer
+ * @brief   Unselects slave. Should be used at the end of transmission.
+ * @param   slave: accelerometer or magnetometer
  * @return  NULL
  */
-void _SPI_write(unsigned char data, int slave);
+void _SPI_unselectSlave(int slave);
+
+/**
+ * @brief   Transmit 8 bits of data to already selected slave device.
+ * @param   data: 1 byte
+ * @return  NULL
+ */
+void _SPI_write(unsigned char data);
 
 /**
  * @brief   Receive n bits of data where n = length * 8.

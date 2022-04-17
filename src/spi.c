@@ -18,7 +18,9 @@ void _SPI_enableIO(void) {
     // keep SCK as input while SSPEN is configured
     // when done, set as output
     _SPI_SCK = 1;
+    __delay_ms(1);
     SSPCON1bits.SSPEN = 1;
+    __delay_ms(1);
     _SPI_SCK = 0;
 
     // SDI is automatically configured but just in case
@@ -38,12 +40,28 @@ void _SPI_disableIO(void) {
 
 /* configure as master */
 void initSPI(void) {
+    /*  
+        => Note from the PIC18 datasheet:
+        When the module is enabled and in master mode (CKE, SSPSTAT<6> = 1),
+        a small glitch of approximately half a T_CY may be seen on the SCK pin.
+        To resolve this, keep the SCK pin as an input while setting SPEN. Then,
+        configure the SCK pin as an output (<TRISC3> = 0).
+
+        => glitch is handled in _SPI_enableIO() <=
+        => This leads me to think SSPSTAT should be set before SSPCON1 <=
+    */
+
+    // bit7 = 1: sample bit => input data sampled at middle (0) or at end (1) of data output time 
+    // bit6 = 0: spi clock select bit (CKE) => transmit occurs on transition from 
+    //           idle to active clock state (0), opposite for (1)
+    // bit0 = 0: buffer full status bit => SSPBUFF is empty 
+    SSPSTAT = 0x80;
+ 
     _SPI_enableIO();
-    
-    // SSPEN is set in _SPI_enableIO(), don't write again
-    SSPCON1bits.WCOL = 0;   // write collision detection bit => no collison
-    SSPCON1bits.SSPOV = 0;  // recv overflow indicator bit => no overflow
-    SSPCON1bits.CKP = 0;    // clock polarity select bit => idle state = high level (1), low level (0)
+    SSPCON1bits.WCOL = 0;   // write collision detection bit => no collison (0)
+    SSPCON1bits.SSPOV = 0;  // recv overflow indicator bit => no overflow (0)
+    // SSPEN = 1            // SSPEN is set in _SPI_enableIO(), don't write again
+    SSPCON1bits.CKP = 1;    // clock polarity select bit => idle state = high level (1), low level (0)
 
     // SSPM3:SSPM0: synchronous serial port mode select bits
     // 0010 => spi master mode, clock = f_osc / 64 
@@ -52,24 +70,15 @@ void initSPI(void) {
     SSPCON1bits.SSPM1 = 1;
     SSPCON1bits.SSPM0 = 0;
     
-    // Note: at this stage, SSPCON1 = 0x22;
-    
-    // bit7 = 0: sample bit => input data sampled at middle of data output time
-    // bit6 = 1: spi clock select bit => transmit occurs on transition from 
-    //           idle to active clock state (0), opposite for (1)
-    // bit0 = 0: buffer full status bit => SSPBUFF is empty 
-    SSPSTAT = 0x40;
+    // Note: at this stage, SSPCON1 = 0x32;
     
     // when data (8 bits) is received, SSPSTATbits.BF (buffer full bit) &
     // PIR1bits.SSPIF (interrupt flag bit) are set
     // => we will use SSPIF to detect when transfer is complete
     PIR1bits.SSPIF = 0;
-    
-    //ADCON0 = 0;
-    //ADCON1 = 0x0F;
 }
 
-/* select slave device */
+/* select slave device at start of transmission */
 void _SPI_selectSlave(int slave) {
     // Chip Select pin (~CS) needs to pulled *low* in order to select it
     switch (slave) {
@@ -89,11 +98,24 @@ void _SPI_selectSlave(int slave) {
     }
 }
 
-/* send 8 bits from PIC18 */
-void _SPI_write(unsigned char data, int slave) {
-    // select appropriate slave device
-    _SPI_selectSlave(slave);
+/* unselect slave device at end of transmission */
+void _SPI_unselectSlave(int slave) {
+    // pull ~CS pin high
+    switch (slave) {
+        case ACCELEROMETER:
+            _SPI_CS1 = 1;
+            break;
+        case MAGNETOMETER:
+            _SPI_CS2 = 1;
+            break;
+        default:
+            // leave CS pins unchanged if incorrect slave
+            break;
+    }
+}
 
+/* send 8 bits from PIC18 */
+void _SPI_write(unsigned char data) {
     // transfer data to SSPBUF register and wait for transmission
     // to complete
     SSPBUF = data;
@@ -113,7 +135,6 @@ void _SPI_read(unsigned char* data, int length) {
         // if data is there in SSPBUF
         // TODO: might need to factor in interrupt bit as well
         if (SSPSTATbits.BF) {
-            UART_send_str("Data received in SSPBUF");
             data[i--] = SSPBUF; 
             numBytes++;
 
