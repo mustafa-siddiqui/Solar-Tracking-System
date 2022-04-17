@@ -28,18 +28,22 @@ int main(void) {
     // turn on LEDs to indicate start of init process
     LATDbits.LATD2 = 1;
     LATDbits.LATD3 = 1;
-    
-    // initialize PIC18 as master for SPI
-    initSPI();
-    _delay(10000);
-    
+    __delay_ms(1000);
+
     // initialize UART module
     UART_RX_Init();
     UART_send_str(" UART initialized...");
-    _delay(10000);
+    __delay_ms(1000);
+
+    // initialize PIC18 as master for SPI
+    initSPI();
+    UART_send_str(" SPI initialized...");
+    __delay_ms(1000);
     
     // initialize accelerometer for communication
     int status = initAccel();
+    UART_send_str(" ACCEL initialized...");
+    __delay_ms(1000);
     
     // turn off LEDs to indicate end of init process
     LATDbits.LATD2 = 0;
@@ -49,18 +53,18 @@ int main(void) {
     while (1) {
         if (status) {
             unsigned char deviceID = _ACCEL_getDeviceID();
-            char str[20];
-            sprintf(str, " Device ID: %x ", deviceID);
-            UART_send_str(str);
-            _delay(10000);
+            char str_deviceID[20];
+            sprintf(str_deviceID, " Device ID: %x ", deviceID);
+            UART_send_str(str_deviceID);
+            __delay_ms(1000);
         }
         
         // test spi communication
         unsigned char dataFormatReg = _ACCEL_readFromRegister(_ADDR_DATA_FORMAT);
-        char strToSend[20];
-        sprintf(strToSend, " Data Format: %x ", dataFormatReg);
-        UART_send_str(strToSend);
-        _delay(10000);
+        char str_dataFormat[20];
+        sprintf(str_dataFormat, " Data Format: %x ", dataFormatReg);
+        UART_send_str(str_dataFormat);
+        __delay_ms(1000);
     }
 
     return 0;
