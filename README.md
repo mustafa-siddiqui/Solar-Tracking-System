@@ -46,6 +46,8 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 **04/16**: UART module working. Working on SPI module to work with the accelerometer module. On the hardware side, structure assembly is pretty much done. Connecting Raspberry Pi's ground to the MCU's ground has resulting current leakage – need to find a way to prevent this.
 
+**04/17**: SPI communication with the accelerometer working. Leaking current issue fixed with a diode. Work on motor control module started.
+
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
 
