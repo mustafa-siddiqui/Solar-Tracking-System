@@ -15,6 +15,7 @@
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
+#include <string.h> // memset()
     
 #define _XTAL_FREQ 8000000  // 8 MHz
 
@@ -46,20 +47,19 @@ int main(void) {
     __delay_ms(1000);
     
     // test spi communication
-    char strInit[20];
-    sprintf(strInit, "POWER_CTL: %x", _ACCEL_readFromRegister(_ADDR_POWER_CTL));
-    UART_send_str(strInit);
+    char str[20];
+    sprintf(str, "POWER_CTL: %x", _ACCEL_readFromRegister(_ADDR_POWER_CTL));
+    UART_send_str(str);
     __delay_ms(1000);
     
-    memset(strInit, 0, sizeof(strInit));
-    sprintf(strInit, "BW_RATE: %x", _ACCEL_readFromRegister(_ADDR_BW_RATE));
-    UART_send_str(strInit);
+    memset(str, 0, sizeof(str));
+    sprintf(str, "BW_RATE: %x", _ACCEL_readFromRegister(_ADDR_BW_RATE));
+    UART_send_str(str);
     __delay_ms(1000);
     
-    unsigned char dataFormatReg = _ACCEL_readFromRegister(_ADDR_DATA_FORMAT);
-    char str_dataFormat[20];
-    sprintf(str_dataFormat, "DATA_FORMAT: %x", dataFormatReg);
-    UART_send_str(str_dataFormat);
+    memset(str, 0, sizeof(str));
+    sprintf(str, "DATA_FORMAT: %x", _ACCEL_readFromRegister(_ADDR_DATA_FORMAT));
+    UART_send_str(str);
     __delay_ms(1000);
     
     // turn off LEDs to indicate end of init process
@@ -68,27 +68,20 @@ int main(void) {
     _delay(10000);
     
     if (status) {
-        UART_send_str("Device ID correct.");
+        UART_send_str("Device ID correct!");
         LATDbits.LATD2 = 1;
-        //unsigned char deviceID = _ACCEL_getDeviceID();
-        //char str_deviceID[20];
-        //sprintf(str_deviceID, "DEVID: %x", deviceID);
-        //UART_send_str(str_deviceID);
         __delay_ms(1000);
         LATDbits.LATD2 = 0;
         __delay_ms(1000);
     }
     
+    int sensorData[3] = {0};
     while (1) {
-        unsigned char xVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_X0);
-        unsigned char xVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_X1);
-        char xData1[10];
-        char xData2[10];
-        sprintf(xData1, "x0 = %x", xVal_0);
-        sprintf(xData2, "x1 = %x", xVal_1);
-        UART_send_str(xData1);
+        _ACCEL_getCurrentReading(sensorData);
+        char dataStr[20];
+        sprintf(dataStr, "[%x, %x, %x]", sensorData[0], sensorData[1], sensorData[2]);
+        UART_send_str(dataStr);
         __delay_ms(1000);
-        UART_send_str(xData2);
     }
 
     return 0;
