@@ -38,7 +38,7 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 > In `Conf: [default]/PICkit 3/`, select `Power` in `Option Categories`, enable `Power target circuit from PICkit 3`, and select `Voltage level` = 4.75 V.  
 
 ### Progress
-*keep track of dev progress as we go*
+[*keep track of dev progress as we go*]
 
 **04/05**: Successfully debugged MCU issue (irregular behavior turned out to be because of some pins in floating state; added a 7.5k ohm resistor between MCLR/Vpp and Vdd). Ready for software development.
 
@@ -46,7 +46,7 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 **04/16**: UART module working. Working on SPI module to work with the accelerometer module. On the hardware side, structure assembly is pretty much done. Connecting Raspberry Pi's ground to the MCU's ground has resulting current leakage – need to find a way to prevent this.
 
-**04/17**: SPI communication with the accelerometer working. Leaking current issue fixed with a diode. Work on motor control module started.
+**04/17**: SPI communication with the accelerometer working. Leaking current issue fixed with a diode. Work on motor control module started. Built-in delay functions now accurate and work as intended. Please use `__delay_ms()` or `__delay_us()` in your code.
 
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
