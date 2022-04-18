@@ -23,6 +23,7 @@
 #define ACCELEROMETER   1
 #define MAGNETOMETER    2
 
+/* in order to use built-in delay functions defined in 'xc.h' */
 #define _XTAL_FREQ 8000000
 
 /**
@@ -67,23 +68,19 @@ void _SPI_selectSlave(int slave);
 void _SPI_unselectSlave(int slave);
 
 /**
- * @brief   Transmit 8 bits of data to already selected slave device.
+ * @brief   Transmit 1 byte of data to already selected slave device.
+ *          => source: https://openlabpro.com/guide/spi-module-in-pic18f4550/
  * @param   data: 1 byte
- * @return  NULL
+ * @return  0 if successful write, -1 if collision occurred
  */
-void _SPI_write(unsigned char data);
-signed char WriteSPI( unsigned char data_out );
+signed char _SPI_write(unsigned char data_out);
 
 /**
- * @brief   Receive n bits of data where n = length * 8.
- *          i.e. length = number of bytes to receive
- * @param   data: passed by reference, data received is stored here 
- * @param   length: size of data
- * @return  NULL
+ * @brief   Receive 1 byte of data from slave device
+ *          => source: https://openlabpro.com/guide/spi-module-in-pic18f4550/
+ * @param   NULL
+ * @return  byte read
  */
-void _SPI_read(unsigned char* data, int length);
-unsigned char ReadSPI( unsigned char data );
-
-unsigned char _SPI_readByte(unsigned char dataByte1);
+unsigned char _SPI_read(void);
 
 #endif /* _SPI_H_*/

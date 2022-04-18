@@ -9,7 +9,6 @@
  */
 
 #include "../inc/spi.h"
-#include "../inc/uart.h"
 //-//
 #include <xc.h>
 
@@ -41,14 +40,11 @@ void _SPI_disableIO(void) {
 /* configure as master */
 void initSPI(void) {
     /*  
-        => Note from the PIC18 datasheet:
+        => Note from the PIC18 datasheet: (handled in _SPI_enableIO())
         When the module is enabled and in master mode (CKE, SSPSTAT<6> = 1),
         a small glitch of approximately half a T_CY may be seen on the SCK pin.
         To resolve this, keep the SCK pin as an input while setting SPEN. Then,
         configure the SCK pin as an output (<TRISC3> = 0).
-
-        => glitch is handled in _SPI_enableIO() <=
-        => This leads me to think SSPSTAT should be set before SSPCON1 <=
     */
 
     // bit7 = 1: sample bit => input data sampled at middle (0) or at end (1) of data output time 
@@ -114,74 +110,29 @@ void _SPI_unselectSlave(int slave) {
     }
 }
 
-/* send 8 bits from PIC18 */
-void _SPI_write(unsigned char data) {
-    // transfer data to SSPBUF register and wait for transmission
-    // to complete
-    //unsigned char dataFlush;
+/* write byte to slave device */
+signed char _SPI_write(unsigned char data_out) {
+    unsigned char tempVar;
+    tempVar = SSPBUF;               // clears BF
+    PIR1bits.SSPIF = 0;             // clear interrupt flag
+    SSPCON1bits.WCOL = 0;           // clear any previous write collision
+    SSPBUF = data_out;              // write byte to SSPBUF register
     
-    SSPBUF = data;
-    while (!PIR1bits.SSPIF) {}
-
-    // clear interrupt flag
-    PIR1bits.SSPIF = 0;
-    
-    //dataFlush = SSPBUF;
-}
-
-/* temp addition from internet */
-signed char WriteSPI( unsigned char data_out )
-{
-    unsigned char TempVar;
-    TempVar = SSPBUF;           // Clears BF
-    PIR1bits.SSPIF = 0;         // Clear interrupt flag
-    SSPCON1bits.WCOL = 0;            //Clear any previous write collision
-    SSPBUF = data_out;           // write byte to SSPBUF register
-    if ( SSPCON1 & 0x80 )        // test if write collision occurred
-        return ( -1 );              // if WCOL bit is set return negative #
+    if (SSPCON1 & 0x80)             // test if write collision occurred
+        return -1;                  // if WCOL bit is set return negative #
     else
-        while( !PIR1bits.SSPIF );  // wait until bus cycle complete
-    return ( 0 );                // if WCOL bit is not set return non-negative#
+        while(!PIR1bits.SSPIF);     // wait until bus cycle complete
+
+    return 0;                       // if WCOL bit is not set return non-negative #
 }
 
-/* temp addition as well */
-unsigned char ReadSPI( unsigned char data )
-{
-  unsigned char TempVar;
-  TempVar = SSPBUF;        // Clear BF
-  PIR1bits.SSPIF = 0;      // Clear interrupt flag
-  SSPBUF = data;           // initiate bus cycle
-  while(!PIR1bits.SSPIF);  // wait until cycle complete
-  return ( SSPBUF );       // return with byte read
-}
+/* read byte from slave device */
+unsigned char _SPI_read(void) {
+  unsigned char tempVar;
+  tempVar = SSPBUF;         // clear BF
+  PIR1bits.SSPIF = 0;       // clear interrupt flag
+  SSPBUF = 0x00;            // initiate bus cycle
+  while(!PIR1bits.SSPIF);   // wait until cycle complete
 
-/* read n bits of data; n = length*8 */
-void _SPI_read(unsigned char* data, int length) {
-    unsigned int complete = 0;
-    unsigned int numBytes = 0;
-    int i = length - 1;
-
-    while (!complete) {
-        // if data is there in SSPBUF
-        // TODO: might need to factor in interrupt bit as well
-        if (SSPSTATbits.BF) {
-            data[i--] = SSPBUF; 
-            numBytes++;
-
-            if (numBytes == length)
-                complete = 1;
-        }
-    }
-    //SSPCON1bits.WCOL = 0;
-    // TODO: NOT SURE atm if overflow bit needs to be cleared
-    // clear buffer full status bit
-    SSPSTATbits.BF = 0;
-}
-
-unsigned char _SPI_readByte(unsigned char dataByte1) {
-    SSPBUF = dataByte1;		/* Copy flush data in SSBUF */
-    while(!PIR1bits.SSPIF);	/* Wait for complete 1 byte transmission */
-    PIR1bits.SSPIF=0;		/* Clear SSPIF flag */
-    SSPCON1bits.WCOL = 0;   
-    return(SSPBUF);		/* Return received data.*/ 
+  return SSPBUF;            // return with byte read
 }
