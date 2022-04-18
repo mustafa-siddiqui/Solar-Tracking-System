@@ -9,9 +9,8 @@
  */
 
 #include "../inc/init.h"
-#include "../inc/spi.h"
-#include "../inc/accel.h"
 #include "../inc/uart.h"
+#include "../inc/spi.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
@@ -40,26 +39,13 @@ int main(void) {
     UART_send_str("SPI initialized...");
     __delay_ms(1000);
     
-    // initialize accelerometer for communication
-    int status = initAccel();
-    UART_send_str("ACCEL initialized...");
-    __delay_ms(1000);
-    
     // turn off LEDs to indicate end of init process
     LATDbits.LATD2 = 0;
     LATDbits.LATD3 = 0;
     __delay_ms(1000);
     
-    if (status) {
-        UART_send_str("Device ID correct.");
-        LATDbits.LATD2 = 1;
-        __delay_ms(1000);
-        LATDbits.LATD2 = 0;
-        __delay_ms(1000);
-    }
-    
     while (1) {
-        //
+        ;
     }
 
     return 0;
