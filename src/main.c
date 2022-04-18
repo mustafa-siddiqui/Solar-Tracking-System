@@ -45,23 +45,6 @@ int main(void) {
     UART_send_str("ACCEL initialized...");
     __delay_ms(1000);
     
-    // test spi communication
-    char strInit[20];
-    sprintf(strInit, "POWER_CTL: %x", _ACCEL_readFromRegister(_ADDR_POWER_CTL));
-    UART_send_str(strInit);
-    __delay_ms(1000);
-    
-    memset(strInit, 0, sizeof(strInit));
-    sprintf(strInit, "BW_RATE: %x", _ACCEL_readFromRegister(_ADDR_BW_RATE));
-    UART_send_str(strInit);
-    __delay_ms(1000);
-    
-    unsigned char dataFormatReg = _ACCEL_readFromRegister(_ADDR_DATA_FORMAT);
-    char str_dataFormat[20];
-    sprintf(str_dataFormat, "DATA_FORMAT: %x", dataFormatReg);
-    UART_send_str(str_dataFormat);
-    __delay_ms(1000);
-    
     // turn off LEDs to indicate end of init process
     LATDbits.LATD2 = 0;
     LATDbits.LATD3 = 0;
