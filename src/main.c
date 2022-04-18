@@ -70,25 +70,13 @@ int main(void) {
     if (status) {
         UART_send_str("Device ID correct.");
         LATDbits.LATD2 = 1;
-        //unsigned char deviceID = _ACCEL_getDeviceID();
-        //char str_deviceID[20];
-        //sprintf(str_deviceID, "DEVID: %x", deviceID);
-        //UART_send_str(str_deviceID);
         __delay_ms(1000);
         LATDbits.LATD2 = 0;
         __delay_ms(1000);
     }
     
     while (1) {
-        unsigned char xVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_X0);
-        unsigned char xVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_X1);
-        char xData1[10];
-        char xData2[10];
-        sprintf(xData1, "x0 = %x", xVal_0);
-        sprintf(xData2, "x1 = %x", xVal_1);
-        UART_send_str(xData1);
-        __delay_ms(1000);
-        UART_send_str(xData2);
+        //
     }
 
     return 0;
