@@ -48,7 +48,7 @@ int main(void) {
     // turn off LEDs to indicate end of init process
     LATDbits.LATD2 = 0;
     LATDbits.LATD3 = 0;
-    _delay(10000);
+    __delay_ms(1000);
     
     if (status) {
         UART_send_str("Device ID correct.");
