@@ -28,7 +28,8 @@
 #define _ADDR_DATA_Z0     0x36  /* z-axis data 0 */
 #define _ADDR_DATA_Z1     0x37  /* z-axis data 1 */
 
-#define DEVID   (0xE5)  /* constant value for device ID of accelerometer */
+/* Constant value stored in DEVID register of accelerometer */
+#define DEVID   (0xE5)
 
 /* Utility Macros to set/clear indvidual bits in a register */
 #define SET(reg, bitNum)   (reg |= (1 << bitNum))
@@ -37,7 +38,7 @@
 /**
  * @brief   Create first data byte that is transmitted over SPI for
  *          accelerometer. byte => [R/W, MB, A5-A0]
- * @param   RW: 1 or 0 => read/write bit 
+ * @param   RW: 1 or 0 => read (1)/write (0) bit 
  * @param   MB: 1 or 0 => multiple byte transmission bit
  * @param   addr: address of register to access 
  * @return  content of the data byte to tranmsit
@@ -48,9 +49,9 @@ unsigned char _ACCEL_createDataByte1(int RW, int MB, unsigned char addr);
  * @brief   Write to a specified register on the accelerometer over SPI.
  * @param   addr: address of the register to write to
  * @param   data: data to write in the register
- * @return  NULL 
+ * @return  0 if successful, -1 if collision occured 
  */
-void _ACCEL_writeToRegister(unsigned char addr, unsigned char data);
+signed char _ACCEL_writeToRegister(unsigned char addr, unsigned char data);
 
 /**
  * @brief   Read from a specified register on the accelerometer over SPI.

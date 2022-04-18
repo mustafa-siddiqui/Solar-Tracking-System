@@ -36,7 +36,7 @@ unsigned char _ACCEL_createDataByte1(int RW, int MB, unsigned char addr) {
 }
 
 /* write to register on accelerometer */
-void _ACCEL_writeToRegister(unsigned char addr, unsigned char data) {
+signed char _ACCEL_writeToRegister(unsigned char addr, unsigned char data) {
     // first byte consists of R/W, MB, and address bits (of the register to write to)
     // latter byte is data to be written
     unsigned char dataByte_1 = _ACCEL_createDataByte1(0, 0, addr);
@@ -45,24 +45,24 @@ void _ACCEL_writeToRegister(unsigned char addr, unsigned char data) {
     // start transmission by pulling ~CS low
     _SPI_selectSlave(ACCELEROMETER);
     
-    //_SPI_write(dataByte_1);
-    //_SPI_write(dataByte_2);
-    int status1 = WriteSPI(dataByte_1);
-    int status2 = WriteSPI(data);
+    signed char status1 = _SPI_write(dataByte_1);
+    signed char status2 = _SPI_write(data);
 
     // end transmisson by setting ~CS high
     _SPI_unselectSlave(ACCELEROMETER);
     
-    if (status1 || status2) {
-        UART_send_str("SPI write not successful");
+    // write not successful; collision occured somewhere
+    if ((status1 != 0) || (status2 != 0)) {
+        return -1;
     }
 
+    return 0;
 }
 
 /* read from register on accelerometer */
 unsigned char _ACCEL_readFromRegister(unsigned char addr) {
     // to store received data
-    unsigned char data[1] = {0x00};
+    unsigned char data = 0x00;
 
     // first byte consists of R/W, MB, and address of register to read
     unsigned char dataByte_1 = _ACCEL_createDataByte1(1, 0, addr);
@@ -71,15 +71,13 @@ unsigned char _ACCEL_readFromRegister(unsigned char addr) {
     _SPI_selectSlave(ACCELEROMETER);
     
     // write on MOSI line & receive on MISO line
-    //_SPI_write(dataByte_1);
-    WriteSPI(dataByte_1);
-    //_SPI_read(data, 1);
-    data[0] = ReadSPI(0x00);
+    _SPI_write(dataByte_1);
+    data = _SPI_read();
     
     // end transmission by setting ~CS high
     _SPI_unselectSlave(ACCELEROMETER); 
     
-    return data[0];
+    return data;
 }
 
 /* get device ID */
