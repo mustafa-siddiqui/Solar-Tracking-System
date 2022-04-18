@@ -10,9 +10,9 @@
 
 
 
-#include "mag.h"
-#include "spi.h"     // _SPI_*() functions
-#include "uart.h"
+#include "../inc/spi.h"
+#include "../inc/mag.h"
+#include "../inc/uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
@@ -32,9 +32,9 @@ unsigned char Create_MagData(int RW, unsigned char address){
 
     // set read/write bit
     if (RW == 1)
-        SET(Data_Transmit, 8);
+        SET(Data_Transmit, 7);
     else
-        CLEAR(Data_Transmit, 8);
+        CLEAR(Data_Transmit, 7);
 
     return Data_Transmit;
 }
@@ -44,7 +44,8 @@ signed char MAG_Write(unsigned char address, unsigned char data_transmit) {
     // First byte is R/W bit, and address we write to
     // Second byte is data to be written
     unsigned char RW_Address = Create_MagData(0, address);
-
+    
+    /* CHANGE it to MAGNETOMETER */
     // start transmission by pulling ~CS low
     _SPI_selectSlave(ACCELEROMETER);
     
@@ -69,7 +70,8 @@ unsigned char MAG_Read(unsigned char address) {
 
     // first byte consists of R/W and address of register to read
     unsigned char RW_Address = Create_MagData(1, address);
-
+    
+    /* Change it to MAGNETOMETER */
     // start transmission by pulling ~CS low
     _SPI_selectSlave(ACCELEROMETER);
     
@@ -88,7 +90,7 @@ unsigned char Get_MAG_ID(void) {
     return MAG_Read(MAG_ID);
 }
 
-int MAG_Data(void) {
+void MAG_Data(int* sensorData) {
     // TODO
     //OUT Registers provide us with Magnetometer raw data
     unsigned char X1 = MAG_Read(OUTX_L_REG);
@@ -98,9 +100,17 @@ int MAG_Data(void) {
     unsigned char Z1 = MAG_Read(OUTZ_L_REG);
     unsigned char Z2 = MAG_Read(OUTZ_H_REG);
     
-    
-    
-    return X1,X2,Y1,Y2,Z1,Z2;
+    // combine high and low values into one number
+    // bits represent signed 2's complement format
+    int x = (X1 << 8) | X2;
+    int y = (Y1 << 8) | Y2;
+    int z = (Z1 << 8) | Z2;
+
+    // populate var
+    memset(sensorData, 0, 3);
+    sensorData[0] = x;
+    sensorData[1] = y;
+    sensorData[2] = z;
 }
 
 /* initialize accelerometer module */
@@ -117,7 +127,7 @@ int Mag_Initialize(void) {
     //Default data-ready
     
     // return 0 if incorrect device id
-    if (Get_MAG_ID() != WHO_AM_I) 
+    if (Get_MAG_ID() != WHO_AM_I_VAL) 
         return 0;
     
     return 1;

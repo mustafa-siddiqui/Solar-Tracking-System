@@ -8,11 +8,10 @@
  * 
  */
 
-#include "init.h"
-#include "spi.h"
-#include "accel.h"
-#include "mag.h"
-#include "uart.h"
+#include "../inc/init.h"
+#include "../inc/spi.h"
+#include "../inc/mag.h"
+#include "../inc/uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
@@ -47,36 +46,10 @@ int main(void) {
     UART_send_str("MAG initialized...");
     __delay_ms(1000);
     
-    // test spi communication
-    char str[20];
-    sprintf(str, "DEVICE ID: %x", MAG_Read(WHO_AM_I));
-    UART_send_str(str);
-    __delay_ms(1000);
-    
-    //char str[20];
-    //sprintf(str, "STATUS_REG: %x", MAG_Read(STATUS_REG));
-    //UART_send_str(str);
-    //__delay_ms(1000);
-    
-    memset(str, 0, sizeof(str));
-    sprintf(str, "INT_SOURCE_REG: %x", MAG_Read(INT_SOURCE_REG));
-    UART_send_str(str);
-    __delay_ms(1000);
-    
-    memset(str, 0, sizeof(str));
-    sprintf(str, "OUTX_L_REG: %x", MAG_Read(OUTX_L_REG));
-    UART_send_str(str);
-    __delay_ms(1000);
-    
-    memset(str, 0, sizeof(str));
-    sprintf(str, "OUTX_H_REG: %x", MAG_Read(OUTX_H_REG));
-    UART_send_str(str);
-    __delay_ms(1000);
-    
     // turn off LEDs to indicate end of init process
     LATDbits.LATD2 = 0;
     LATDbits.LATD3 = 0;
-    _delay(10000);
+    _delay(1000);
     
     if (status) {
         UART_send_str("Device ID correct!");
@@ -86,11 +59,21 @@ int main(void) {
         __delay_ms(1000);
     }
     
-    int sensorData[6] = {0};
+    char str[20];
+    sprintf(str, "CFG_REG_A: %x", MAG_Read(CFG_REG_A));
+    UART_send_str(str);
+    __delay_ms(1000);
+    
+    memset(str, 0, sizeof(str));
+    sprintf(str, "CFG_REG_C: %x", MAG_Read(CFG_REG_C));
+    UART_send_str(str);
+    __delay_ms(1000);
+    
+    int sensorData[3] = {0};
     while (1) {
-        MAG_Data();
+        MAG_Data(sensorData);
         char dataStr[20];
-        sprintf(dataStr, "[%x, %x, %x, %x, %x, %x]", sensorData[0], sensorData[1], sensorData[2], sensorData[3], sensorData[4], sensorData[5]);
+        sprintf(dataStr, "[%x, %x, %x]", sensorData[0], sensorData[1], sensorData[2]);
         UART_send_str(dataStr);
         __delay_ms(1000);
     }

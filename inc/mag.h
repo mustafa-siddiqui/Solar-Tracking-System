@@ -26,8 +26,9 @@
 #define OFFSET_Z_REG_H 0x4A
 
 //Device ID Register and Status (Read Only)
-#define WHO_AM_I 0x4F   //ID register to indentify device
-#define STATUS_REG 0x67 //used to indicate device status
+#define WHO_AM_I 0x4F       //ID register to indentify device
+#define WHO_AM_I_VAL 0x40   //Content of WHO_AM_I register
+#define STATUS_REG 0x67     //used to indicate device status
 
 //Configuration Registers (Both Read and Write)
 #define CFG_REG_A 0x60  //Configure output data rate and measurement configuration
@@ -63,6 +64,6 @@ signed char MAG_Write(unsigned char address, unsigned char data_transmit);
 unsigned char MAG_Read(unsigned char address);
 unsigned char Get_MAG_ID(void);
 int Mag_Initialize(void);
-int MAG_Data(void);
+void MAG_Data(int* sensorData);
 
 #endif /* _MAG_H_ */
