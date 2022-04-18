@@ -10,10 +10,10 @@
 
 #include "../inc/accel.h"
 #include "../inc/spi.h"     // _SPI_*() functions
-#include "../inc/uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
+#include <string.h> // memset()
 
 /* create first data byte for SDI line for accelerometer */
 unsigned char _ACCEL_createDataByte1(int RW, int MB, unsigned char addr) {
@@ -86,9 +86,25 @@ unsigned char _ACCEL_getDeviceID(void) {
 }
 
 /* get current x, y, z axis readings */
-int* _ACCEL_getCurrentReading(void) {
-    // TODO
-    return NULL;
+void _ACCEL_getCurrentReading(int *sensorData) {
+    unsigned char xVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_X0);
+    unsigned char xVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_X1);
+    unsigned char yVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_Y0);
+    unsigned char yVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_Y1);
+    unsigned char zVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_Z0);
+    unsigned char zVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_Z1);
+
+    // combine high and low values into one number
+    // bits represent signed 2's complement format
+    int x = (xVal_0 << 8) | xVal_1;
+    int y = (yVal_0 << 8) | yVal_1;
+    int z = (zVal_0 << 8) | zVal_1;
+
+    // populate var
+    memset(sensorData, 0, 3);
+    sensorData[0] = x;
+    sensorData[1] = y;
+    sensorData[2] = z;
 }
 
 /* initialize accelerometer module */

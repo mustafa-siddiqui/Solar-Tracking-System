@@ -71,11 +71,14 @@ unsigned char _ACCEL_getDeviceID(void);
 /**
  * @brief   Get current x, y, and z axis readings from the
  *          accelerometer.
- * @param   NULL
- * @return  an integer array of length = 3
- *          => format: [x, y, z]
+ *          =>  pass by reference is used to prevent memory leaks
+ *              with issues stemming from allocating memory for 
+ *              pointers inside functions and returning those pointers
+ * @param   sensorData: pointer to an integer array to hold x, y, z values
+ *          => better to have it initialized to size = 3
+ * @return  NULL
  */
-int* _ACCEL_getCurrentReading(void);
+void _ACCEL_getCurrentReading(int *sensorData);
 
 /**
  * @brief   Configure accelerometer's SPI module as slave
