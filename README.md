@@ -48,6 +48,8 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 **04/17**: SPI communication with the accelerometer working. Leaking current issue fixed with a diode. Work on motor control module started. Built-in delay functions now accurate and work as intended. Please use `__delay_ms()` or `__delay_us()` in your code.
 
+**04/19**: Able to get raw values with the accelerometer and magnetometer. Motor control is also up and running -- although more conciseness could be achieve in terms of ability to control the output (input to the H-bridge). Code is pretty stable now -- UART and SPI communication results are consistent across the devices.
+
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
 
