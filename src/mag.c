@@ -7,9 +7,9 @@
  * @copyright Copyright (c) 2022
  * 
  */
-#include "spi.h"
-#include "mag.h"
-#include "uart.h"
+#include "../inc/spi.h"
+#include "../inc/mag.h"
+#include "../inc/uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
@@ -86,7 +86,7 @@ unsigned char MAG_Read(unsigned char address) {
 
 /* get device ID */
 unsigned char Get_MAG_ID(void) {
-    return MAG_Read(MAG_ID);
+    return MAG_Read(WHO_AM_I);
 }
 
 void MAG_Data(int* sensorData) {
@@ -105,20 +105,15 @@ void MAG_Data(int* sensorData) {
     int y = (Y2 << 8) | Y1;
     int z = (Z2 << 8) | Z1;
     
-    //Convert data from hexadecimal to decimal
-    double XA = strtol(x, NULL, 16);
-    double YA = strtol(y, NULL, 16);
-    double ZA = strtol(z, NULL, 16);
-    
-        // populate var
+    // populate var
     memset(sensorData, 0, 4);
-    sensorData[0] = XA;
-    sensorData[1] = YA;
-    sensorData[2] = ZA;
+    sensorData[0] = x;
+    sensorData[1] = y;
+    sensorData[2] = z;
     
     //Convert data into angle form
     double Angle;
-    Angle = atan2( (double)YA, (double)XA );
+    Angle = atan2( (double)y, (double)x );
     Angle = Angle*(180/PI);
     
     if (Angle > 360){
@@ -137,37 +132,8 @@ void MAG_Data(int* sensorData) {
     If D is between 112.5 degrees and 157.5 degrees ? South-East
     If D is between 67.5 degrees and 112.5 degrees ? East
     If D is between 0 degrees and 67.5 degrees ? North-East
-     */
-    /*
-    char Direction;
-    if(Angle>337.25 || Angle<22.5){
-        Direction = "North";
-    }
-    else if(Angle>292.5 && Angle<337.25){
-        Direction = "NorthWest";
-    }
-    else if(Angle>247.5 && Angle<292.5){
-        Direction = "West";
-    }
-    else if(Angle>202.5 && Angle<247.5){
-        Direction = "SouthWest";
-    }
-    else if(Angle>157.5 && Angle<202.5){
-        Direction = "South";
-    }
-    else if(Angle>112.5 && Angle<157.5){
-        Direction = "SouthEast";
-    }
-    else if(Angle>67.5 && Angle<112.5){
-        Direction = "East";
-    }
-    else if(Angle>0 && Angle<67.5){
-        Direction = "NorthEast";
-    }
-    return Direction;
-     */
+    */
 }
-
 
 /* initialize accelerometer module */
 int Mag_Initialize(void) {

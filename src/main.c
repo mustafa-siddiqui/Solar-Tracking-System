@@ -8,10 +8,10 @@
  * 
  */
 
-#include "init.h"
-#include "spi.h"
-#include "mag.h"
-#include "uart.h"
+#include "../inc/init.h"
+#include "../inc/spi.h"
+#include "../inc/mag.h"
+#include "../inc/uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
@@ -75,7 +75,7 @@ int main(void) {
     while (1) {
         MAG_Data(sensorData);
         char dataStr[20];
-        sprintf(dataStr, "[%lf, %lf, %lf, %lf]", sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+        sprintf(dataStr, "[%d, %d, %d, %d]", sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
         UART_send_str(dataStr);
         __delay_ms(1000);
     }

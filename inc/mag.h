@@ -53,8 +53,6 @@
 #define TEMP_OUT_L_REG 0x6E     //Temparature Sensor Data
 #define TEMP_OUT_H_REG 0x6F
 
-#define MAG_ID (0x00) //Will be used to store device ID of magnetometer
-
 /* Utility Macros to set/clear individual bits in a register */
 #define SET(reg, bitNum)   (reg |= (1 << bitNum))       //reg = reg | (1 << bitNum)
 #define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
