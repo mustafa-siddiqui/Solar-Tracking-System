@@ -8,14 +8,16 @@
  * 
  */
 
-#include "../inc/init.h"
-#include "../inc/spi.h"
-#include "../inc/mag.h"
-#include "../inc/uart.h"
+#include "init.h"
+#include "spi.h"
+#include "mag.h"
+#include "uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
 #include <string.h> // memset()
+#include <stdlib.h>
+#include <math.h>
     
 #define _XTAL_FREQ 8000000  // 8 MHz
 
@@ -69,11 +71,11 @@ int main(void) {
     UART_send_str(str);
     __delay_ms(1000);
     
-    int sensorData[3] = {0};
+    int sensorData[4] = {0};
     while (1) {
         MAG_Data(sensorData);
         char dataStr[20];
-        sprintf(dataStr, "[%x, %x, %x]", sensorData[0], sensorData[1], sensorData[2]);
+        sprintf(dataStr, "[%lf, %lf, %lf, %lf]", sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
         UART_send_str(dataStr);
         __delay_ms(1000);
     }
