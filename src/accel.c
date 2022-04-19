@@ -109,9 +109,6 @@ void _ACCEL_getCurrentReading(int *sensorData) {
 
 /* initialize accelerometer module */
 int initAccel(void) {
-    // enable measurement mode (set bit D3)
-    _ACCEL_writeToRegister(_ADDR_POWER_CTL, 0x04);
-    
     // data_format reg:
     //      select 4-wire mode -> clear bit D6
     //      full_res mode -> set bit D3
@@ -120,6 +117,9 @@ int initAccel(void) {
     // => [self_test, spi, int_invert, 0, full_res, justify, range<1:0>]
     //unsigned char reg_dataFormat = 0x0D;
     _ACCEL_writeToRegister(_ADDR_DATA_FORMAT, 0x0D);
+    
+    // enable measurement mode (set bit D3)
+    _ACCEL_writeToRegister(_ADDR_POWER_CTL, 0x08);
 
     // select rate_bits in bw_rate to set output data rate
     // => default value is 0x0A which translates to 100 Hz, let's keep it at that atm
