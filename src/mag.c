@@ -7,15 +7,14 @@
  * @copyright Copyright (c) 2022
  * 
  */
-
-
-
-#include "../inc/spi.h"
-#include "../inc/mag.h"
-#include "../inc/uart.h"
+#include "spi.h"
+#include "mag.h"
+#include "uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
+#include <stdlib.h>
+#include <math.h>
 
 //Function that creates byte of data to be transmitted from PIC to Magnetometer
 //First input is Read/Write Bit
@@ -93,8 +92,8 @@ unsigned char Get_MAG_ID(void) {
 void MAG_Data(int* sensorData) {
     // TODO
     //OUT Registers provide us with Magnetometer raw data
-    unsigned char X1 = MAG_Read(OUTX_L_REG);
-    unsigned char X2 = MAG_Read(OUTX_H_REG);
+    unsigned char X1 = MAG_Read(OUTX_L_REG);    //L--> Least Significant Bit
+    unsigned char X2 = MAG_Read(OUTX_H_REG);    //H--> Most Significant Bit
     unsigned char Y1 = MAG_Read(OUTY_L_REG);
     unsigned char Y2 = MAG_Read(OUTY_H_REG);
     unsigned char Z1 = MAG_Read(OUTZ_L_REG);
@@ -102,16 +101,73 @@ void MAG_Data(int* sensorData) {
     
     // combine high and low values into one number
     // bits represent signed 2's complement format
-    int x = (X1 << 8) | X2;
-    int y = (Y1 << 8) | Y2;
-    int z = (Z1 << 8) | Z2;
-
-    // populate var
-    memset(sensorData, 0, 3);
-    sensorData[0] = x;
-    sensorData[1] = y;
-    sensorData[2] = z;
+    int x = (X2 << 8) | X1;
+    int y = (Y2 << 8) | Y1;
+    int z = (Z2 << 8) | Z1;
+    
+    //Convert data from hexadecimal to decimal
+    double XA = strtol(x, NULL, 16);
+    double YA = strtol(y, NULL, 16);
+    double ZA = strtol(z, NULL, 16);
+    
+        // populate var
+    memset(sensorData, 0, 4);
+    sensorData[0] = XA;
+    sensorData[1] = YA;
+    sensorData[2] = ZA;
+    
+    //Convert data into angle form
+    double Angle;
+    Angle = atan2( (double)YA, (double)XA );
+    Angle = Angle*(180/PI);
+    
+    if (Angle > 360){
+        Angle = Angle - 360;
+    }
+    else if (Angle < 0){
+        Angle = Angle + 360;
+    }
+    sensorData[3] = Angle;
+    /*
+    If D is greater than 337.25 degrees or less than 22.5 degrees ? North
+    If D is between 292.5 degrees and 337.25 degrees ? North-West
+    If D is between 247.5 degrees and 292.5 degrees ? West
+    If D is between 202.5 degrees and 247.5 degrees ? South-West
+    If D is between 157.5 degrees and 202.5 degrees ? South
+    If D is between 112.5 degrees and 157.5 degrees ? South-East
+    If D is between 67.5 degrees and 112.5 degrees ? East
+    If D is between 0 degrees and 67.5 degrees ? North-East
+     */
+    /*
+    char Direction;
+    if(Angle>337.25 || Angle<22.5){
+        Direction = "North";
+    }
+    else if(Angle>292.5 && Angle<337.25){
+        Direction = "NorthWest";
+    }
+    else if(Angle>247.5 && Angle<292.5){
+        Direction = "West";
+    }
+    else if(Angle>202.5 && Angle<247.5){
+        Direction = "SouthWest";
+    }
+    else if(Angle>157.5 && Angle<202.5){
+        Direction = "South";
+    }
+    else if(Angle>112.5 && Angle<157.5){
+        Direction = "SouthEast";
+    }
+    else if(Angle>67.5 && Angle<112.5){
+        Direction = "East";
+    }
+    else if(Angle>0 && Angle<67.5){
+        Direction = "NorthEast";
+    }
+    return Direction;
+     */
 }
+
 
 /* initialize accelerometer module */
 int Mag_Initialize(void) {
