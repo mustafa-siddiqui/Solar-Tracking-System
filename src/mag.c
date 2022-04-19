@@ -122,7 +122,7 @@ void MAG_Data(int* sensorData) {
     else if (Angle < 0){
         Angle = Angle + 360;
     }
-    sensorData[3] = Angle;
+    sensorData[3] = (int)Angle;
     /*
     If D is greater than 337.25 degrees or less than 22.5 degrees ? North
     If D is between 292.5 degrees and 337.25 degrees ? North-West
@@ -143,7 +143,7 @@ int Mag_Initialize(void) {
     //Don't reset registers, high-resolution mode, 100Hz output, and
     //single measurement mode
     
-    MAG_Write(CFG_REG_C, 0x36);
+    MAG_Write(CFG_REG_C, 0x34);
     //Default interrupts, inhibit I2C (SPI only), avoid reading incorrect data,
     //Don't invert high and low bits of data, 4-Wire SPI mode, enable self-test,
     //Default data-ready
