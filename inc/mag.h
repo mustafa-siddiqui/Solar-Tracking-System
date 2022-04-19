@@ -59,6 +59,8 @@
 #define SET(reg, bitNum)   (reg |= (1 << bitNum))       //reg = reg | (1 << bitNum)
 #define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
 
+#define PI 3.14159265359
+
 unsigned char Create_MagData(int RW, unsigned char address);
 signed char MAG_Write(unsigned char address, unsigned char data_transmit);
 unsigned char MAG_Read(unsigned char address);
