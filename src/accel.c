@@ -14,6 +14,7 @@
 #include <xc.h>
 #include <stdio.h>  // sprintf()
 #include <string.h> // memset()
+#include <math.h> // sqrt()
 
 /* create first data byte for SDI line for accelerometer */
 unsigned char _ACCEL_createDataByte1(int RW, int MB, unsigned char addr) {
@@ -133,6 +134,16 @@ int initAccel(void) {
 
 /* get zenith angle value */
 int getCurrentZenith(void) {
-    // TODO
-    return 0;
+    // get current x, y, z axis values
+    int sensorData[3] = {0};
+    _ACCEL_getCurrentReading(sensorData);
+
+    // V = sqrt(Vx^2 + Vy^2 + Vz^2)
+    float vector = sqrt(SQUARE(sensorData[0] + SQUARE(sensorData[1]) + SQUARE(sensorData[2])));
+
+    // calculate the zenith angle (angle between vector and the vertical axis)
+    float angle = acos((float)sensorData[2] / vector);
+
+    // return integer value of angle in degrees
+    return (int)(angle * (180/M_PI));
 }

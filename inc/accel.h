@@ -35,6 +35,9 @@
 #define SET(reg, bitNum)   (reg |= (1 << bitNum))
 #define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
 
+/* Utility macro to square a value */
+#define SQUARE(num) (num * num)
+
 /**
  * @brief   Create first data byte that is transmitted over SPI for
  *          accelerometer. byte => [R/W, MB, A5-A0]
@@ -74,7 +77,7 @@ unsigned char _ACCEL_getDeviceID(void);
  *          =>  pass by reference is used to prevent memory leaks
  *              with issues stemming from allocating memory for 
  *              pointers inside functions and returning those pointers
- * @param   sensorData: pointer to an integer array to hold x, y, z values
+ * @param   sensorData: pointer to an integer array to hold [x, y, z] values
  *          => better to have it initialized to size = 3
  * @return  NULL
  */
