@@ -134,15 +134,18 @@ int initAccel(void) {
 
 /* get zenith angle value */
 int getCurrentZenith(void) {
-    // get current x, y, z axis values
+    // we don't to interpret sensor readings in terms of g (9.8 m/s^2) because
+    // the calculations cancel out the effect i.e. we obtain a ratio -- which is
+    // going to be the same regardless
+    // format: [x, y, z]
     int sensorData[3] = {0};
     _ACCEL_getCurrentReading(sensorData);
 
     // V = sqrt(Vx^2 + Vy^2 + Vz^2)
-    float vector = sqrt(SQUARE(sensorData[0] + SQUARE(sensorData[1]) + SQUARE(sensorData[2])));
+    double vector = sqrt(SQUARE(sensorData[0] + SQUARE(sensorData[1]) + SQUARE(sensorData[2])));
 
     // calculate the zenith angle (angle between vector and the vertical axis)
-    float angle = acos((float)sensorData[2] / vector);
+    double angle = acos((float)sensorData[2] / vector);
 
     // return integer value of angle in degrees
     return (int)(angle * (180/M_PI));
