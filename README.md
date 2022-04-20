@@ -56,7 +56,7 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
 
--> Correct circuit set up is essential to normal operation of the microcontroller. Two capacitors required for Vdd pins on either side of the MCU. ~7-10k ohm resistor required betweeen `MCLR/Vpp` and `Vdd` pins. Add a 7.5kΩ resistor between `MCLR/Vpp` and `Vdd` pins. Extra precaution to set all pins as digital output upon start up.  
+-> Correct circuit set up is essential to normal operation of the microcontroller. Two capacitors required for Vdd pins on either side of the MCU. ~7-10k ohm resistor required betweeen `MCLR/Vpp` and `Vdd` pins. Extra precaution to set all pins as digital output upon start up.  
 
 -> Please make sure to add adequate comments to ease any debugging processes later down the line. Also, in the header files for the modules, please make sure to add a comment block above the function declaration mentioning a brief overview, parameter descriptions, and what info is returned. Example: `initPins()` in `init.h`.
 
