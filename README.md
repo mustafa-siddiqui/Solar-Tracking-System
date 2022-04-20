@@ -24,6 +24,9 @@ Sun Tracking PV System for Senior Design.
     * Give user the option to turn on/off
     * Control motion of the system
 
+### Module Diagram
+![module_diagram](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/info/moduleDiagram.png)
+
 ### Dev Setup
 Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
@@ -48,12 +51,12 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 **04/17**: SPI communication with the accelerometer working. Leaking current issue fixed with a diode. Work on motor control module started. Built-in delay functions now accurate and work as intended. Please use `__delay_ms()` or `__delay_us()` in your code.
 
-**04/19**: Able to get raw values with the accelerometer and magnetometer. Motor control is also up and running -- although more conciseness could be achieve in terms of ability to control the output (input to the H-bridge). Code is pretty stable now -- UART and SPI communication results are consistent across the devices.
+**04/19**: Able to get raw values with the accelerometer and magnetometer. Motor control is also up and running -- although more conciseness could be achieved in terms of ability to control the output (input to the H-bridge). Code is pretty stable now -- UART and SPI communication behavior is consistent across devices.
 
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
 
--> Correct circuit set up is essential to normal operation of the microcontroller. Two capacitors required for Vdd pins on either side of the MCU. ~7-10k ohm resistor required betweeen `MCLR/Vpp` and `Vdd` pins. Extra precaution to set all pins as digital output upon start up.  
+-> Correct circuit set up is essential to normal operation of the microcontroller. Two capacitors required for Vdd pins on either side of the MCU. ~7-10k ohm resistor required betweeen `MCLR/Vpp` and `Vdd` pins. Add a 7.5kΩ resistor between `MCLR/Vpp` and `Vdd` pins. Extra precaution to set all pins as digital output upon start up.  
 
 -> Please make sure to add adequate comments to ease any debugging processes later down the line. Also, in the header files for the modules, please make sure to add a comment block above the function declaration mentioning a brief overview, parameter descriptions, and what info is returned. Example: `initPins()` in `init.h`.
 
