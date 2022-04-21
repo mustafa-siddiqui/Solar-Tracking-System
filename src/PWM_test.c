@@ -72,7 +72,7 @@
 
 // CONFIG7H
 #pragma config EBTRB = OFF      // Boot Block Table Read Protection bit (Boot block (000000-0007FFh) not protected from table reads executed in other blocks)
-
+#define _XTAL_FREQ 8000000
 //#pragma config FOSC = HS
 //#pragma config WDT = OFF
 //#pragma config PBADEN = OFF
@@ -89,8 +89,22 @@
 void pwm_Init() {
     TRISCbits.RC2=0; //Setting RC2/CCP1 pin as an output
     PORTCbits.RC2=0;
-    PR2=0b01111100; //PR2=(PWM2_Period/(4*Tosc*Prescale))-1=10^10^(-3)/4*(1/8*10^6)*16)=124
-    T2CON=0b00000111;
+    //float Tosc=1/(8*10^(6));
+    int Prescale=16;
+    float f = 1e3;
+    float PWM_Period = 1/f;
+    //PR2=(PWM_Period/(4*Tosc*Prescale))-1;
+ 
+    //int num = (10^(-3)*8*10^6)/(4*16)-1;
+    
+    int num = (int)(PWM_Period * _XTAL_FREQ)/(4 * Prescale) - 1;
+    PR2=(unsigned char)(num);//10^(-3)/(4*(1/(8*10^6))*16)-1;
+    char prStr[15];
+    sprintf(prStr, "PR2: %x", PR2);
+    UART_send_str(prStr);
+    __delay_ms(100);
+    //PR2=0b01111100; //PR2=(PWM2_Period/(4*Tosc*Prescale))-1=10^(-3)/(4*(1/8*10^6)*16)-1=124
+    T2CON=0b00000111; //Prescalar set to 16
     
 }
 
@@ -100,11 +114,26 @@ void pwm_Init() {
 void set_duty_cycle(int fraction) {
     UART_send_str("calling set duty cycle function");
     
-    int desired_CCPR = 5*fraction;
-    //Duty_cycle/(Tosc*Prescalar)=10^(-3)*0.5/(1/(8*10^6)*16)=250 (0011111010) = 500*0.5
+    //char foscVal[10];
+    //sprintf(foscVal, "fosc Val: %lf", fosc);
+    //UART_send_str(foscVal);
+    
+    int Prescale=16;
+    float f=1e3;
+    float PWM_Period=1/f;
+    
+    //int desired_CCPR = PWM_Period*(fraction/100)/(Tosc*Prescale)= PWM_Period*(fraction)*fosc/(100*Prescale);
+    int desired_CCPR = (int)((PWM_Period * fraction * _XTAL_FREQ)/(100 * Prescale));
+    //Duty_cycle/(Tosc*Prescalar)=10^(-3)*0.5/(1/(8/4*10^6)*16)=250 (0011111010) = 500*0.5 //check this formula
     //CCPR1L=0b00111110;
+    
+    // debug statement
+    char prStr[15];
+    sprintf(prStr, "CCPR: %x", desired_CCPR);
+    UART_send_str(prStr);
+    
     CCPR1L = (desired_CCPR & 0xFC )>> 2;
-    CCP1CON=0b00101100;
+    CCP1CON = 0b00101100;
     
     if( desired_CCPR & 0b1){
         SET(CCP1CON, 4);
@@ -122,19 +151,34 @@ void set_duty_cycle(int fraction) {
 }
 
 void main(void) {
+    TRISA = 0x0;
+    TRISB = 0x0;
+    TRISC = 0x0;
+    TRISD = 0x0;
+    TRISE = 0x0;
     
     OSCCON = 0x72;		/* Use internal frequency 8 MHz */   
     
-    pwm_Init();
-    //set_duty_cycle(50);
+    LATDbits.LATD2=0;
+    LATDbits.LATD2=0;
     UART_RX_Init();
-    UART_send_str("Starting");
+    UART_send_str("UART Initialized...");
+    LATDbits.LATD2=1;
+    __delay_ms(1000);
+    
+    pwm_Init();
+    __delay_ms(1000);
+    
     //CCPR1L=0b00111110;
     //CCP1CON=0b00101100;
     //CCP1CONbits.DC1B0 = 0;
     //CCP1CONbits.DC1B1 = 1;.
     //CCP1CONbits.CCP1M
-    set_duty_cycle(100);
+    
+    // 500 = max
+    // 0 = min
+    set_duty_cycle(375);
+    __delay_ms(500);
     
     while(1)
     {
