@@ -10,11 +10,12 @@
 
 #include "../inc/accel.h"
 #include "../inc/spi.h"     // _SPI_*() functions
+#include "../inc/uart.h"    // added for debugging
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
 #include <string.h> // memset()
-#include <math.h> // sqrt()
+#include <math.h>   // sqrt()
 
 /* create first data byte for SDI line for accelerometer */
 unsigned char _ACCEL_createDataByte1(int RW, int MB, unsigned char addr) {
@@ -47,7 +48,7 @@ signed char _ACCEL_writeToRegister(unsigned char addr, unsigned char data) {
     _SPI_selectSlave(ACCELEROMETER);
     
     signed char status1 = _SPI_write(dataByte_1);
-    signed char status2 = _SPI_write(data);
+    signed char status2 = _SPI_write(dataByte_2);
 
     // end transmisson by setting ~CS high
     _SPI_unselectSlave(ACCELEROMETER);
@@ -110,14 +111,12 @@ void _ACCEL_getCurrentReading(int *sensorData) {
 
 /* initialize accelerometer module */
 int initAccel(void) {
-    // data_format reg:
-    //      select 4-wire mode -> clear bit D6
-    //      full_res mode -> set bit D3
-    //      justify bit -> left-justified (MSB) mode (1), right-justified (0)
-    //      range (bits D1 & D0) specify the range -- 2g, 4g, 8g, or 16g (4g selected)
     // => [self_test, spi, int_invert, 0, full_res, justify, range<1:0>]
-    //unsigned char reg_dataFormat = 0x0D;
-    _ACCEL_writeToRegister(_ADDR_DATA_FORMAT, 0x0D);
+    //      spi mode: 3-wire (1), 4-wire (0)
+    //      resolution: full_res (1), 10-bit mode (0)
+    //      justify: left-justified (MSB) mode (1), right-justified (0)
+    //      range: 16g
+    _ACCEL_writeToRegister(_ADDR_DATA_FORMAT, 0x07);
     
     // enable measurement mode (set bit D3)
     _ACCEL_writeToRegister(_ADDR_POWER_CTL, 0x08);
@@ -140,7 +139,13 @@ int getCurrentZenith(void) {
     // format: [x, y, z]
     int sensorData[3] = {0};
     _ACCEL_getCurrentReading(sensorData);
-
+    
+    // see axis data used for calculations
+    char dataStr[20];
+    sprintf(dataStr, "[%d, %d, %d]", sensorData[0], sensorData[1], sensorData[2]);
+    UART_send_str(dataStr);
+    __delay_ms(1000);
+    
     // V = sqrt(Vx^2 + Vy^2 + Vz^2)
     double vector = sqrt(SQUARE(sensorData[0] + SQUARE(sensorData[1]) + SQUARE(sensorData[2])));
 

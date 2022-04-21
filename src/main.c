@@ -77,10 +77,11 @@ int main(void) {
     
     int sensorData[3] = {0};
     while (1) {
-        _ACCEL_getCurrentReading(sensorData);
-        char dataStr[20];
-        sprintf(dataStr, "[%x, %x, %x]", sensorData[0], sensorData[1], sensorData[2]);
-        UART_send_str(dataStr);
+        // see current angle
+        int angle = getCurrentZenith();
+        char angleStr[10];
+        sprintf(angleStr, "Angle: %d\n", angle);
+        UART_send_str(angleStr);
         __delay_ms(1000);
     }
 
