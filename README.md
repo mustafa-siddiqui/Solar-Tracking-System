@@ -48,6 +48,8 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 **04/17**: SPI communication with the accelerometer working. Leaking current issue fixed with a diode. Work on motor control module started. Built-in delay functions now accurate and work as intended. Please use `__delay_ms()` or `__delay_us()` in your code.
 
+**04/22**: NMEA String parsing is working. The sun's zenith and azimuth angles are correctly calculated from time and coordinates.
+
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
 
