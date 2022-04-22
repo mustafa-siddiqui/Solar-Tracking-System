@@ -1,17 +1,21 @@
-/* 
- * File:   gps.h
- * Author: 
- * Comments:
- * Revision history: 
+/**
+ * @file    gps.h
+ * @author  Carter Bordeleau
+ * @brief   Header file for GPS Interface
+ * @date    04/14/2022
+ * 
+ * 
  */
 
-// This is a guard condition so that contents of this file are not included
-// more than once.  
+
 #ifndef GPS_H
 #define	GPS_H
 
-#include <xc.h> // include processor files - each processor file is guarded.  
+#include <xc.h> 
 #include <string.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 #define RAD_CONST 0.017453295
 #define DEGREES_CONST 57.295779513
@@ -23,10 +27,15 @@ struct TimePos {
     float longitude;
 };
 
-TimePos parse_GPRMC(char*);
-int* calculate_target_angles(TimePos);
+struct TimePos parse_GPRMC(const char*);
+float* calculate_target_angles(struct TimePos);
 int is_GPRMC(char*);
 int is_Valid(char*);
-
+int calc_NMEA_Checksum( char *, int);
+int* get_target_angles(void);
+int str_to_ordinal_date(char*);
+int str_to_minute(char*);
+float str_to_latitude(char*);
+float str_to_longitude(char*);
 #endif	/* GPS_H */
 
