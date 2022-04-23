@@ -23,6 +23,18 @@ Sun Tracking PV System for Senior Design.
 * User Control (if time and energy permits)
     * Give user the option to turn on/off
     * Control motion of the system
+     
+* Currently Used Pins
+     * RC1, RC2, RC3, RC4, RC5, RC6, RC7
+     * RD2, RD3, RD4, RD5, RD6
+     * RE2, RE3
+
+* Currenlt Available Pins
+   * RA0, RA1, RA2, RA3, RA4, RA5, RA6, RA7
+   * RB0, RB1, RB2, RB3, RB4, RB5, RB6, RB7
+   * RD0, RD1
+   * RE0, RE1
+
 
 ### Module Diagram
 ![module_diagram](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/info/moduleDiagram.png)
