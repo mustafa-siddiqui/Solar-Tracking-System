@@ -81,7 +81,7 @@ unsigned char _ACCEL_getDeviceID(void);
  *          => better to have it initialized to size = 3
  * @return  NULL
  */
-void _ACCEL_getCurrentReading(int *sensorData);
+void _ACCEL_getCurrentReading(float *sensorData);
 
 /**
  * @brief   Configure accelerometer's SPI module as slave

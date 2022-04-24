@@ -88,7 +88,7 @@ unsigned char _ACCEL_getDeviceID(void) {
 }
 
 /* get current x, y, z axis readings */
-void _ACCEL_getCurrentReading(int *sensorData) {
+void _ACCEL_getCurrentReading(float *sensorData) {
     unsigned char xVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_X0);
     unsigned char xVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_X1);
     unsigned char yVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_Y0);
@@ -98,9 +98,9 @@ void _ACCEL_getCurrentReading(int *sensorData) {
 
     // combine high and low values into one number
     // bits represent signed 2's complement format
-    int x = (xVal_0 << 8) | xVal_1;
-    int y = (yVal_0 << 8) | yVal_1;
-    int z = (zVal_0 << 8) | zVal_1;
+    float x = (xVal_0 << 8) | xVal_1;
+    float y = (yVal_0 << 8) | yVal_1;
+    float z = (zVal_0 << 8) | zVal_1;
 
     // populate var
     memset(sensorData, 0, 3);
@@ -137,20 +137,20 @@ int getCurrentZenith(void) {
     // the calculations cancel out the effect i.e. we obtain a ratio -- which is
     // going to be the same regardless
     // format: [x, y, z]
-    int sensorData[3] = {0};
+    float sensorData[3] = {0.0};
     _ACCEL_getCurrentReading(sensorData);
     
     // see axis data used for calculations
     char dataStr[20];
-    sprintf(dataStr, "[%d, %d, %d]", sensorData[0], sensorData[1], sensorData[2]);
+    sprintf(dataStr, "[%f, %f, %f]", sensorData[0], sensorData[1], sensorData[2]);
     UART_send_str(dataStr);
     __delay_ms(1000);
     
     // V = sqrt(Vx^2 + Vy^2 + Vz^2)
-    double vector = sqrt(SQUARE(sensorData[0] + SQUARE(sensorData[1]) + SQUARE(sensorData[2])));
+    float vector = sqrt(SQUARE(sensorData[0] + SQUARE(sensorData[1]) + SQUARE(sensorData[2])));
 
     // calculate the zenith angle (angle between vector and the vertical axis)
-    double angle = acos((float)sensorData[2] / vector);
+    float angle = acos((float)sensorData[2] / vector);
 
     // return integer value of angle in degrees
     return (int)(angle * (180/M_PI));
