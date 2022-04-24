@@ -10,7 +10,6 @@
 
 #include "../inc/accel.h"
 #include "../inc/spi.h"     // _SPI_*() functions
-#include "../inc/uart.h"    // added for debugging
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
@@ -100,19 +99,19 @@ void _ACCEL_getCurrentReading(int16_t *sensorData) {
     // bits represent signed 2's complement format
     // max value is INT16_MAX (32767) & min value is INT16_MIN (-32768)
     // if range is set as +-ng where n = 2,4,8, or 16, then 1 g = INT16_MAX/n
-    int16_t x = (xVal_0 << 8) | xVal_1;
-    int16_t y = (yVal_0 << 8) | yVal_1;
-    int16_t z = (zVal_0 << 8) | zVal_1;
+    int16_t x = (xVal_1 << 8) | xVal_0;
+    int16_t y = (yVal_1 << 8) | yVal_0;
+    int16_t z = (zVal_1 << 8) | zVal_0;
 
     // populate var
     memset(sensorData, 0, 3 * sizeof(sensorData[0]));
-    sensorData[0] = x;
-    sensorData[1] = y;
-    sensorData[2] = z;
+    sensorData[0] = x + xAxisOffset;
+    sensorData[1] = y + yAxisOffset;
+    sensorData[2] = z + zAxisOffset;
 }
 
 /* get average x,y,z readings from sensor */
-void _ACCEL_getAvgReading(int *avgData) {
+void _ACCEL_getAvgReading(int32_t *avgData) {
     memset(avgData, 0, 3 * sizeof(avgData[0]));
 
     // get NUM_READINGS amount of readings and average
@@ -135,8 +134,8 @@ int initAccel(void) {
     //      spi mode: 3-wire (1), 4-wire (0)
     //      resolution: full_res (1), 10-bit mode (0)
     //      justify: left-justified (MSB) mode (1), right-justified (0)
-    //      range: 16g
-    _ACCEL_writeToRegister(_ADDR_DATA_FORMAT, 0x07);
+    //      range: 2g
+    _ACCEL_writeToRegister(_ADDR_DATA_FORMAT, 0x05);
     
     // enable measurement mode (set bit D3)
     _ACCEL_writeToRegister(_ADDR_POWER_CTL, 0x08);
@@ -157,20 +156,14 @@ int getCurrentZenith(void) {
     // the calculations cancel out the effect i.e. we obtain a ratio -- which is
     // going to be the same regardless
     // format: [x, y, z]
-    int sensorData[3] = {0};
+    int32_t sensorData[3] = {0};
     _ACCEL_getAvgReading(sensorData);
     
-    // see axis data used for calculations
-    char dataStr[30];
-    sprintf(dataStr, "[x: %d, y: %d, z: %d]", sensorData[0], sensorData[1], sensorData[2]);
-    UART_send_str(dataStr);
-    __delay_ms(1000);
-    
     // V = sqrt(Vx^2 + Vy^2 + Vz^2)
-    float vector = sqrt(SQUARE(sensorData[0] + SQUARE(sensorData[1]) + SQUARE(sensorData[2])));
+    float vector = sqrt(SQUARE((int32_t)sensorData[0]) + SQUARE((int32_t)sensorData[1]) + SQUARE((int32_t)sensorData[2]));
 
     // calculate the zenith angle (angle between vector and the vertical axis)
-    float angle = acos((float)sensorData[2] / vector);
+    float angle = acos(((float)sensorData[2]) / vector);
 
     // return integer value of angle in degrees
     return (int)(angle * (180/M_PI));
