@@ -1,15 +1,15 @@
 /**
  * @file    mag.c
- * @author  Mustafa Siddiqui
+ * @author  Ali Choudhry
  * @brief   Function definitions for magnetometer module.
  * @date    04/12/2022
  * 
  * @copyright Copyright (c) 2022
  * 
  */
-#include "spi.h"
-#include "mag.h"
-#include "uart.h"
+#include "../inc/spi.h"
+#include "../inc/mag.h"
+#include "../inc/uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
@@ -89,7 +89,7 @@ unsigned char Get_MAG_ID(void) {
     return MAG_Read(WHO_AM_I);
 }
 
-void MAG_Data(int* sensorData) {
+void MAG_Data(int16_t* sensorData) {
     // TODO
     //OUT Registers provide us with Magnetometer raw data
     unsigned char X1 = MAG_Read(OUTX_L_REG);    //L--> Low Bits
@@ -101,48 +101,18 @@ void MAG_Data(int* sensorData) {
     
     // combine high and low values into one number
     // bits represent signed 2's complement format
-    float x = (X2 << 8) | X1;
-    float y = (Y2 << 8) | Y1;
-    float z = (Z2 << 8) | Z1;
+    int16_t x = (X2 << 8) | X1;
+    int16_t y = (Y2 << 8) | Y1;
+    int16_t z = (Z2 << 8) | Z1;
+
     // populate var
-    memset(sensorData, 0, 4);
+    memset(sensorData, 0, 3);
     sensorData[0] = x;
     sensorData[1] = y;
     sensorData[2] = z;
-    
-    //__delay_ms(1000);
-    float Angle = 0;
-    float divider = (y/x); 
-    Angle = atan(divider);
-    Angle = Angle*(180/PI);// + DECLINATION;
-    
-    if (Angle > 360){
-        Angle = Angle - 360;
-    }
-    else if (Angle < 0){
-        Angle = Angle + 360;
-    }
-    //__delay_ms(1000);
-    sensorData[3] = Angle;
 }
+
 /*
-int MAG_Angle(void) {
-    int sensorData[4] = {0};
-    MAG_Data(sensorData);
-    
-    //Convert data into angle form
-    double Angle;
-    Angle = atan2( (double)sensorData[0], (double)sensorData[1] );
-    Angle = Angle*(180/PI);
-    
-    if (Angle > 360){
-        Angle = Angle - 360;
-    }
-    else if (Angle < 0){
-        Angle = Angle + 360;
-    }
-    return Angle;
-    /*
     If D is greater than 337.25 degrees or less than 22.5 degrees --> North
     If D is between 292.5 degrees and 337.25 degrees --> North-West
     If D is between 247.5 degrees and 292.5 degrees --> West
@@ -150,9 +120,40 @@ int MAG_Angle(void) {
     If D is between 157.5 degrees and 202.5 degrees --> South
     If D is between 112.5 degrees and 157.5 degrees --> South-East
     If D is between 67.5 degrees and 112.5 degrees --> East
-    If D is between 0 degrees and 67.5 degrees --> North-East
+    If D is between 0 degrees and 67.5 degrees --> North-East 
+ */
+int MAG_Angle(void) {
+    int16_t sensorData[3] = {0};
+    MAG_Data(sensorData);
+    
+    /*
+    // debug
+    char str[40];
+    sprintf(str, "[x: %d, y: %d, z: %d]", sensorData[0], sensorData[1], sensorData[1]);
+    UART_send_str(str);
+    __delay_ms(500);
     */
-//}
+    // calculate angle from x,y,z readings
+    int16_t x = sensorData[0];
+    int16_t y = sensorData[1];
+    float Angle = 0.0;
+    float divider = ((float)y) / ((float)x); 
+    Angle = atan(divider);
+    Angle = (float)(Angle * (180/M_PI));// + DECLINATION;
+    
+    if (sensorData[1] < 0) {
+        Angle += 180;
+    }
+    Angle += 90;
+    /*
+    if (Angle > 360){
+        Angle = Angle - 360;
+    }
+    else if (Angle < 0){
+        Angle = Angle + 360;
+    */    
+    return (int)Angle;   
+}
 
 /* initialize magnetometer module */
 int Mag_Initialize(void) {
