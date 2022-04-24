@@ -23,18 +23,6 @@ Sun Tracking PV System for Senior Design.
 * User Control (if time and energy permits)
     * Give user the option to turn on/off
     * Control motion of the system
-     
-* Currently Used Pins
-     * RC1, RC2, RC3, RC4, RC5, RC6, RC7
-     * RD2, RD3, RD4, RD5, RD6
-     * RE2, RE3
-
-* Currenlt Available Pins
-   * RA0, RA1, RA2, RA3, RA4, RA5, RA6, RA7
-   * RB0, RB1, RB2, RB3, RB4, RB5, RB6, RB7
-   * RD0, RD1
-   * RE0, RE1
-
 
 ### Module Diagram
 ![module_diagram](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/info/moduleDiagram.png)
@@ -76,3 +64,13 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 -> Please make sure to add adequate comments to ease any debugging processes later down the line. Also, in the header files for the modules, please make sure to add a comment block above the function declaration mentioning a brief overview, parameter descriptions, and what info is returned. Example: `initPins()` in `init.h`.
 
+-> Currently used MCU pins:
+   * RC1, RC2, RC3, RC4, RC5, RC6, RC7
+   * RD2, RD3, RD4, RD5, RD6
+   * RE2, RE3
+
+-> Available MCU pins:
+   * RA0, RA1, RA2, RA3, RA4, RA5, RA6, RA7
+   * RB0, RB1, RB2, RB3, RB4, RB5, RB6, RB7
+   * RD0, RD1
+   * RE0, RE1
