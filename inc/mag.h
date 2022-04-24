@@ -53,11 +53,14 @@
 #define TEMP_OUT_L_REG 0x6E     //Temparature Sensor Data
 #define TEMP_OUT_H_REG 0x6F
 
+#define MAG_ID (0x00) //Will be used to store device ID of magnetometer
+
 /* Utility Macros to set/clear individual bits in a register */
 #define SET(reg, bitNum)   (reg |= (1 << bitNum))       //reg = reg | (1 << bitNum)
 #define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
 
 #define PI 3.14159265359
+#define DECLINATION -11.25 //magnetic declination of rochester
 
 unsigned char Create_MagData(int RW, unsigned char address);
 signed char MAG_Write(unsigned char address, unsigned char data_transmit);
@@ -65,5 +68,6 @@ unsigned char MAG_Read(unsigned char address);
 unsigned char Get_MAG_ID(void);
 int Mag_Initialize(void);
 void MAG_Data(int* sensorData);
+int MAG_Angle(void);
 
 #endif /* _MAG_H_ */
