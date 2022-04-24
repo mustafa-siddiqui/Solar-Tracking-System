@@ -87,26 +87,46 @@ unsigned char _ACCEL_getDeviceID(void) {
     return _ACCEL_readFromRegister(_ADDR_DEVID);
 }
 
-/* get current x, y, z axis readings */
-void _ACCEL_getCurrentReading(float *sensorData) {
-    unsigned char xVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_X0);
-    unsigned char xVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_X1);
-    unsigned char yVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_Y0);
-    unsigned char yVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_Y1);
-    unsigned char zVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_Z0);
-    unsigned char zVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_Z1);
+/* get current x,y,z axis readings */
+void _ACCEL_getCurrentReading(int16_t *sensorData) {
+    uint8_t xVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_X0);
+    uint8_t xVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_X1);
+    uint8_t yVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_Y0);
+    uint8_t yVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_Y1);
+    uint8_t zVal_0 = _ACCEL_readFromRegister(_ADDR_DATA_Z0);
+    uint8_t zVal_1 = _ACCEL_readFromRegister(_ADDR_DATA_Z1);
 
     // combine high and low values into one number
     // bits represent signed 2's complement format
-    float x = (xVal_0 << 8) | xVal_1;
-    float y = (yVal_0 << 8) | yVal_1;
-    float z = (zVal_0 << 8) | zVal_1;
+    // max value is INT16_MAX (32767) & min value is INT16_MIN (-32768)
+    // if range is set as +-ng where n = 2,4,8, or 16, then 1 g = INT16_MAX/n
+    int16_t x = (xVal_0 << 8) | xVal_1;
+    int16_t y = (yVal_0 << 8) | yVal_1;
+    int16_t z = (zVal_0 << 8) | zVal_1;
 
     // populate var
-    memset(sensorData, 0, 3);
+    memset(sensorData, 0, 3 * sizeof(sensorData[0]));
     sensorData[0] = x;
     sensorData[1] = y;
     sensorData[2] = z;
+}
+
+/* get average x,y,z readings from sensor */
+void _ACCEL_getAvgReading(int *avgData) {
+    memset(avgData, 0, 3 * sizeof(avgData[0]));
+
+    // get NUM_READINGS amount of readings and average
+    int16_t sensorReading[3] = {0};
+    for (int i = 0; i < NUM_READINGS; i++) {
+        _ACCEL_getCurrentReading(sensorReading);
+        avgData[0] += sensorReading[0];
+        avgData[1] += sensorReading[1];
+        avgData[2] += sensorReading[2];
+    }
+
+    avgData[0] /= NUM_READINGS;
+    avgData[1] /= NUM_READINGS;
+    avgData[2] /= NUM_READINGS;
 }
 
 /* initialize accelerometer module */
@@ -137,12 +157,12 @@ int getCurrentZenith(void) {
     // the calculations cancel out the effect i.e. we obtain a ratio -- which is
     // going to be the same regardless
     // format: [x, y, z]
-    float sensorData[3] = {0.0};
-    _ACCEL_getCurrentReading(sensorData);
+    int sensorData[3] = {0};
+    _ACCEL_getAvgReading(sensorData);
     
     // see axis data used for calculations
-    char dataStr[20];
-    sprintf(dataStr, "[%f, %f, %f]", sensorData[0], sensorData[1], sensorData[2]);
+    char dataStr[30];
+    sprintf(dataStr, "[x: %d, y: %d, z: %d]", sensorData[0], sensorData[1], sensorData[2]);
     UART_send_str(dataStr);
     __delay_ms(1000);
     
@@ -155,3 +175,10 @@ int getCurrentZenith(void) {
     // return integer value of angle in degrees
     return (int)(angle * (180/M_PI));
 }
+
+//  TODO:
+//  - run code as is to see difference of using int16_t and average reading mechanism
+//  - try changing res to full resolution and see difference
+//  - when readings stable, get number of g's from sensor readings
+//  - remove offset such that readings match [x,y,z] => [0g,0g,-1g]
+//

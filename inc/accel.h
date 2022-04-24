@@ -16,6 +16,8 @@
 #ifndef _ACCEL_H_
 #define _ACCEL_H_
 
+#include <stdint.h> // uint8_t, int16_t
+
 /* Register Maps */
 #define _ADDR_DEVID       0x00  /* device ID => stores fixed value of 0xE5 */
 #define _ADDR_BW_RATE     0x2C  /* data rate and power mode control */
@@ -37,6 +39,10 @@
 
 /* Utility macro to square a value */
 #define SQUARE(num) (num * num)
+
+/* define number of readings to average when reading sensor data */
+/* 0.1 sec worth of data given a 100 Hz data rate */
+#define NUM_READINGS    10
 
 /**
  * @brief   Create first data byte that is transmitted over SPI for
@@ -77,11 +83,18 @@ unsigned char _ACCEL_getDeviceID(void);
  *          =>  pass by reference is used to prevent memory leaks
  *              with issues stemming from allocating memory for 
  *              pointers inside functions and returning those pointers
- * @param   sensorData: pointer to an integer array to hold [x, y, z] values
+ * @param   sensorData: pointer to an integer array to hold [x,y,z] values
  *          => better to have it initialized to size = 3
  * @return  NULL
  */
-void _ACCEL_getCurrentReading(float *sensorData);
+void _ACCEL_getCurrentReading(int16_t *sensorData);
+
+/**
+ * @brief   Get data equivalent to average of NUM_READINGS.
+ * @param   avgData: pointer to an integer array to hold [x,y,z] values
+ * @return  NULL
+ */
+void _ACCEL_getAvgReading(int *avgData);
 
 /**
  * @brief   Configure accelerometer's SPI module as slave
