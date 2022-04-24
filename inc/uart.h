@@ -13,15 +13,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-void __interrupt() UARTRX_ISR();
+//void __interrupt() UARTRX_ISR();
 
+char UART_Read_char(void);
 void UART_RX_Init(void);
 void UART_send_char(char );
 void UART_send_str(const char *);
-void MSdelay(unsigned int);
-void UART_RX_Handle(void);
+
 
 char UART_buffer[100];
+
 
 
 

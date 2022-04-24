@@ -10,6 +10,7 @@
 
 #include "../inc/gps.h"
 #include <math.h>
+#include "../inc/uart.h"
 
 
 /*
@@ -41,13 +42,13 @@ struct TimePos parse_GPRMC(const char* input_str) {
        } else if(i==4) {
            timePosobj.latitude = str_to_latitude(token);
        } else if(i==5) {
-           if ( (token[1] == 'S') || (token[1] == 's')){
+           if ( (token[0] == 'S') || (token[0] == 's')){
                timePosobj.latitude = -timePosobj.latitude;
            }
        } else if(i==6) {
            timePosobj.longitude = str_to_longitude(token);
        } else if(i==7) {
-           if ( (token[1] == 'W') || (token[1] == 'w')){
+           if ( (token[0] == 'W') || (token[0] == 'w')){
                timePosobj.longitude = -timePosobj.longitude;
            }
        } else if(i==10) {
@@ -61,28 +62,28 @@ struct TimePos parse_GPRMC(const char* input_str) {
 /*
  * calculates the target zenith and azimuth angles based on latitude, longitude, and time
  */
-float* calculate_target_angles(struct TimePos time_pos){
-    float *angles = malloc(sizeof(float)*2);
+void calculate_target_angles(struct TimePos time_pos, float* angles){
+
     int N = time_pos.ordinal_date - 1;
     float Ps = -asin(0.39779*cos(0.017203*(N+10)+ 0.033406*sin(0.017203*(N-2))));
 
-    float TGMT = time_pos.time / 60; //UTC time in hours
+    float TGMT = time_pos.time / 60.0; //UTC time in hours
     float ls = -15*(TGMT-12);
     float longitude = time_pos.longitude; //-77.622643
 
-    float lon_constant = (ls - longitude)*RAD_CONST;
+    double lon_constant = (ls - longitude)*RAD_CONST;
 
-    float Po = time_pos.latitude*RAD_CONST;
-    printf("declination: %f", Ps*DEGREES_CONST);
+    double Po = time_pos.latitude*RAD_CONST;
 
-    float Sx  = cos(Ps)*sin(lon_constant);
-    float Sy  = cos(Po)*sin(Ps) - sin(Po)*cos(Ps)*cos(lon_constant);
-    float Sz  = sin(Po)*sin(Ps) + cos(Po)*cos(Ps)*cos(lon_constant);
-
-    angles[0] = acos(Sz)*DEGREES_CONST; //Zenith
-    angles[1] = atan2(Sx, Sy)*DEGREES_CONST; //Azimuth
+    double Sx  = cos(Ps)*sin(lon_constant);
+    double Sy  = cos(Po)*sin(Ps) - sin(Po)*cos(Ps)*cos(lon_constant);
+    double Sz  = sin(Po)*sin(Ps) + cos(Po)*cos(Ps)*cos(lon_constant);
     
-    return angles;
+   
+    
+    angles[0] = (float) (acos(Sz)*DEGREES_CONST); //Zenith
+    angles[1] = (float) (atan2(Sx, Sy)*DEGREES_CONST); //Azimuth
+
 }
 
 /*
@@ -90,8 +91,9 @@ float* calculate_target_angles(struct TimePos time_pos){
  */
 int is_GPRMC(char* str){
     char newStr[7];
+    newStr[6] = '\0';
     memcpy(newStr, str, 6);
-    return strcmp(newStr, "%GPRMC");
+    return !strcmp(newStr, "$GPRMC");
 }
 
 /*
@@ -176,7 +178,7 @@ float str_to_longitude(char* str) {
 /*
  * return 1 if the input string is able to be parsed
  */
-int is_Valid(char* str){
+int is_Valid_GPRMC(char* str){
 
 
     //TODO check that none of the data is invalid
@@ -193,7 +195,7 @@ int is_Valid(char* str){
     const char delimiter[2] = ",";
     char * token;
     int i = 1;
-    char* check_str = malloc(sizeof(char)*5);
+    char * check_str = malloc(sizeof(char)*5);
 
     
     /* get the first token */
@@ -209,13 +211,16 @@ int is_Valid(char* str){
     }
     
     if (i != 14) {
+        free(check_str);
         return 0;
     }
     //validate the check string
     if (check_str[1] != '*') {
+        free(check_str);
        return 0;
     }
     if(check_str[0] == 'N') {
+        free(check_str);
         return 0;
     } 
 
@@ -226,6 +231,7 @@ int is_Valid(char* str){
 
 
     if ((check_valid[0]!=checksum_str[0] || check_valid[1]!=checksum_str[1])){
+        free(check_str);
         return 0;
     }
 
@@ -247,7 +253,7 @@ int calc_NMEA_Checksum( char *buf, int cnt )
 
 
 
-    //foreach(char Character in sentence)
+    //for each(char Character in sentence)
     for (i=0;i<cnt;++i)
     {
         Character = buf[i];
@@ -283,13 +289,41 @@ int calc_NMEA_Checksum( char *buf, int cnt )
 
 
 /*
- * TODO: enable UART RX interrupt and poll incoming strings until we get a valid GPRMC string
+ * returns a list of two floats representing zenith and azimuth angles
  */
-int* get_target_angles(void){
-    //enable interrupt
-    //PIE1bits.RCIE = 1; // UART receive interrupt enabled
-    //once we get valid str, disable interrupt
+void get_target_angles(float* angles){
+    struct TimePos tp;
+    char data;
+    memset(UART_buffer,0,sizeof(UART_buffer));
+    int done = 0;
     
-    //PIE1bits.RCIE = 0; // UART receive interrupt enabled
+    while (!done){
+        while(data != '$') {            //wait to receive $
+            data = UART_Read_char();
+        }
+        strncat(UART_buffer, &data, 1);
+        while(data != '\r') {           //save the entire string
+            data = UART_Read_char();
+            strncat(UART_buffer, &data, 1);
+        }
+        
+        if(is_GPRMC(UART_buffer)) {     //validate the string
+            if (is_Valid_GPRMC(UART_buffer)) {
+                done = 1; 
+            } else {
+                memset(UART_buffer,0,sizeof(UART_buffer));
+            }
+        } else {
+            memset(UART_buffer,0,sizeof(UART_buffer));
+        }
+    }
+    
+    char newStr[100];
+    memcpy(newStr, UART_buffer, 100);
+    
+    tp = parse_GPRMC(newStr);
+    
+    
+    calculate_target_angles(tp, angles);
     
 }

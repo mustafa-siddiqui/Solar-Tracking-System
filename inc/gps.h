@@ -28,14 +28,17 @@ struct TimePos {
 };
 
 struct TimePos parse_GPRMC(const char*);
-float* calculate_target_angles(struct TimePos);
+void calculate_target_angles(struct TimePos, float*);
 int is_GPRMC(char*);
-int is_Valid(char*);
+int is_Valid_GPRMC(char*);
 int calc_NMEA_Checksum( char *, int);
-int* get_target_angles(void);
+void get_target_angles(float*);
 int str_to_ordinal_date(char*);
 int str_to_minute(char*);
 float str_to_latitude(char*);
 float str_to_longitude(char*);
+
+
+
 #endif	/* GPS_H */
 
