@@ -45,7 +45,7 @@
 
 /* define number of readings to average when reading sensor data */
 /* 0.1 sec worth of data given a 100 Hz data rate */
-#define NUM_READINGS    5
+#define NUM_READINGS    10
 
 /* offset values to write to offset registers */
 int16_t xAxisOffset = -192;
