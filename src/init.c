@@ -8,7 +8,7 @@
  * 
  */
 
-#include "../inc/init.h"
+#include "init.h"
 #include <xc.h>
 
 /* initialize pins as digital outputs */

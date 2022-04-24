@@ -6,7 +6,7 @@
  */
 
 
-#include "../inc/uart.h"
+#include "uart.h"
 
 
 /*
