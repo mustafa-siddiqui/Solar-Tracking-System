@@ -65,6 +65,10 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 **04/19**: Able to get raw values with the accelerometer and magnetometer. Motor control is also up and running -- although more conciseness could be achieved in terms of ability to control the output (input to the H-bridge). Code is pretty stable now -- UART and SPI communication behavior is consistent across devices.
 
+**04/22**: GPS module's NMEA string parsing is working. The sun's zenith and azimuth angles are correctly calculated from time and coordinates.
+
+**04/24**: Accelerometer module is fully working and angle calculations have been verified. Solar PV System power output data was logged to be able to produce a graph/figure of the improvements made due to our design -- even though the sun tracking ability is still in development, this log contains the effects of the 4 reflectors and we want to have some data at hand before *Design Day* (the next couple of days are rainy here in Rochester).
+
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
 
