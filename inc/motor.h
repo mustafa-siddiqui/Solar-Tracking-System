@@ -8,16 +8,14 @@
 #ifndef MOTOR_H
 #define	MOTOR_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+#define _XTAL_FREQ 8000000
 
+//#define DUTY_CYCLE_CONST 5
 
+#define SET(reg, bitNum)   (reg |= (1 << bitNum))
+#define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
 
-
-#ifdef	__cplusplus
-}
-#endif
+// TODO: Add function declarations with comment blocks
 
 #endif	/* MOTOR_H */
 

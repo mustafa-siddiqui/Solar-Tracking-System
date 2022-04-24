@@ -8,30 +8,14 @@
  * 
  */
 
-#include "motor.h"
-#include "uart.h"    // added for debugging
+#include "../inc/motor.h"
+#include "../inc/uart.h"    // added for debugging
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
 #include <math.h>   // sqrt()
 #include <stdlib.h>
-#include <pic18.h>
 #include <string.h>
-
-
-#define _XTAL_FREQ 8000000
-//#pragma config FOSC = HS
-//#pragma config WDT = OFF
-//#pragma config PBADEN = OFF
-//#pragma config LVP = OFF
-//#pragma config PWRT = ON
-//#pragma config DEBUG=OFF
-
-//#define DUTY_CYCLE_CONST 5
-
-
-#define SET(reg, bitNum)   (reg |= (1 << bitNum))
-#define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
 
 void pwm_Init(float f) {
     TRISCbits.RC2=0; //Setting RC2/CCP1 pin as an output
