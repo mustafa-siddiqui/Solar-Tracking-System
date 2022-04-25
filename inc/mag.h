@@ -1,12 +1,9 @@
 /**
  * @file    accel.h
- * @author  Mustafa Siddiqui, Ali Choudhry
+ * @author  Ali Choudhry, Mustafa Siddiqui
  * @brief   Header file for magnetometer related functions
  *          needed for calculating the azimuth angle which is
- *          then sent to the motor control module.
- *          => Functions beginning with a '_' (underscore) 
- *             are essentially helper functions not to be
- *             used outside this module <=
+ *          then sent to the logic control module.
  * @date    04/12/2022
  * 
  * @copyright Copyright (c) 2022
@@ -16,59 +13,68 @@
 #ifndef _MAG_H_
 #define _MAG_H_
 
-#include <stdint.h>
+#include <stdint.h> // int16_t
 
 /* Register Maps */
-//Hard Iron Registers (Both Read and Write)
-#define OFFSET_X_REG_L 0x45     //Compensate for environmental effects
-#define OFFSET_X_REG_H 0x46     //Act on magnetic output data
+// Hard Iron Registers (Both Read and Write)
+#define OFFSET_X_REG_L 0x45     // Compensate for environmental effects
+#define OFFSET_X_REG_H 0x46     // Act on magnetic output data
 #define OFFSET_Y_REG_L 0x47
 #define OFFSET_Y_REG_H 0x48
 #define OFFSET_Z_REG_L 0x49
 #define OFFSET_Z_REG_H 0x4A
 
-//Device ID Register and Status (Read Only)
-#define WHO_AM_I 0x4F       //ID register to indentify device
-#define WHO_AM_I_VAL 0x40   //Content of WHO_AM_I register
-#define STATUS_REG 0x67     //used to indicate device status
+// Device ID Register and Status (Read Only)
+#define WHO_AM_I 0x4F       // ID register to indentify device
+#define WHO_AM_I_VAL 0x40   // Content of WHO_AM_I register
+#define STATUS_REG 0x67     // used to indicate device status
 
-//Configuration Registers (Both Read and Write)
-#define CFG_REG_A 0x60  //Configure output data rate and measurement configuration
-#define CFG_REG_B 0x61 //Offset cancellation and Low-Pass Filter
-#define CFG_REG_C 0x62  //Set to 4-Wire SPI
+// Configuration Registers (Both Read and Write)
+#define CFG_REG_A 0x60      // Configure output data rate and measurement configuration
+#define CFG_REG_B 0x61      // Offset cancellation and Low-Pass Filter
+#define CFG_REG_C 0x62      // Set to 4-Wire SPI
 
-//Interrupt Configuration Registers (All Read and Write, except Source)
-#define INT_CRTL_REG 0x063  //Enable and configure interrupt recognition
-#define INT_SOURCE_REG 0x64 //Read only, When interrupt latched is selected, reading this register resets all the bits in this register.
-#define INT_THS_L_REG 0x65  //Least significant bits of the threshold value chosen for the interrupt
-#define INT_THS_H_REG 0x66  //Meast significant bits of the threshold value chosen for the interrupt
-
-//Output Registers (Read Only)
-#define OUTX_L_REG 0x68     //Raw magnetic data output accross all
-#define OUTX_H_REG 0x69     //of these registers
-#define OUTY_L_REG 0x6A     //
-#define OUTY_H_REG 0x6B     //
-#define OUTZ_L_REG 0x6C     //
-#define OUTZ_H_REG 0x6D     //
-
-//Temperature Sensor Registers (Read Only)
-#define TEMP_OUT_L_REG 0x6E     //Temparature Sensor Data
-#define TEMP_OUT_H_REG 0x6F
-
-#define MAG_ID (0x00) //Will be used to store device ID of magnetometer
-
-/* Utility Macros to set/clear individual bits in a register */
-#define SET(reg, bitNum)   (reg |= (1 << bitNum))       //reg = reg | (1 << bitNum)
-#define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
+// Output Registers (Read Only)
+// Raw magnetic data output across all of these registers
+#define OUTX_L_REG 0x68
+#define OUTX_H_REG 0x69
+#define OUTY_L_REG 0x6A
+#define OUTY_H_REG 0x6B
+#define OUTZ_L_REG 0x6C
+#define OUTZ_H_REG 0x6D
 
 #define DECLINATION -11.25 //magnetic declination of rochester
 
+// Utility Macros to set/clear individual bits in a register
+#define SET(reg, bitNum)   (reg |= (1 << bitNum))
+#define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
+
+// create data packet to write to magnetometer
+// RW: read/write
+// address: address of register
 unsigned char Create_MagData(int RW, unsigned char address);
+
+// write to register
+// address: address of register
+// data_transmit: data to write to register
 signed char MAG_Write(unsigned char address, unsigned char data_transmit);
+
+// read from register
+// address: address of register to read from
 unsigned char MAG_Read(unsigned char address);
+
+// read content stored in WHO_AM_I register
 unsigned char Get_MAG_ID(void);
+
+// intiliaze magnetometer: CFG_REG_A and CFG_REG_C
 int Mag_Initialize(void);
+
+// get current sensor reading [x,y,z]
 void MAG_Data(int16_t* sensorData);
+
+// calculate azimuth angle in degrees
+// angle >= 0 always
+// -1 if some calc/reading error
 int MAG_Angle(void);
 
 #endif /* _MAG_H_ */
