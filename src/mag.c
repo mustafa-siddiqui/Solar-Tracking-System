@@ -7,6 +7,7 @@
  * @copyright Copyright (c) 2022
  * 
  */
+
 #include "../inc/spi.h"
 #include "../inc/mag.h"
 #include "../inc/uart.h"
@@ -16,15 +17,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-//Function that creates byte of data to be transmitted from PIC to Magnetometer
-//First input is Read/Write Bit
-//Second input is register address of Magnetometer
-//Third input is multiple byte bit
-//SPI Write Protocol:
-//Bit 0 --> Read/Write Bit  --> 0 is write
-//Bits 1-7 --> Address of register in Magnetometer
-//Bits 8-15 --> Data to be transmitted, MSb first
-//Multiple Bytes of data may be sent by adding a second byte to the data transmit
+// Function that creates byte of data to be transmitted from PIC to Magnetometer
+// First input is Read/Write Bit
+// Second input is register address for magnetometer
+// SPI Write Protocol:
+// Bit 0 --> Read/Write Bit  --> 0 is write
+// Bits 1-7 --> Address of register in magnetometer
+// Bits 8-15 --> Data to be transmitted, MSb first
 unsigned char Create_MagData(int RW, unsigned char address){
     unsigned char Data_Transmit = 0x0;
     Data_Transmit |= address;
@@ -44,7 +43,6 @@ signed char MAG_Write(unsigned char address, unsigned char data_transmit) {
     // Second byte is data to be written
     unsigned char RW_Address = Create_MagData(0, address);
     
-    /* CHANGE it to MAGNETOMETER */
     // start transmission by pulling ~CS low
     _SPI_selectSlave(MAGNETOMETER);
     
@@ -62,7 +60,7 @@ signed char MAG_Write(unsigned char address, unsigned char data_transmit) {
 }
 
 /* read from register on magnetometer */
-//Read/Write bit of 1 is to read
+// Read/Write bit of 1 is to read
 unsigned char MAG_Read(unsigned char address) {
     // to store received data
     unsigned char recieved_data = 0x00;
@@ -70,7 +68,6 @@ unsigned char MAG_Read(unsigned char address) {
     // first byte consists of R/W and address of register to read
     unsigned char RW_Address = Create_MagData(1, address);
     
-    /* Change it to MAGNETOMETER */
     // start transmission by pulling ~CS low
     _SPI_selectSlave(MAGNETOMETER);
     
@@ -89,8 +86,8 @@ unsigned char Get_MAG_ID(void) {
     return MAG_Read(WHO_AM_I);
 }
 
+/* get x,y,z sensor reading from magnetometer */
 void MAG_Data(int16_t* sensorData) {
-    // TODO
     //OUT Registers provide us with Magnetometer raw data
     unsigned char X1 = MAG_Read(OUTX_L_REG);    //L--> Low Bits
     unsigned char X2 = MAG_Read(OUTX_H_REG);    //H--> High Bits
@@ -113,46 +110,47 @@ void MAG_Data(int16_t* sensorData) {
 }
 
 /*
-    If D is greater than 337.25 degrees or less than 22.5 degrees --> North
-    If D is between 292.5 degrees and 337.25 degrees --> North-West
-    If D is between 247.5 degrees and 292.5 degrees --> West
-    If D is between 202.5 degrees and 247.5 degrees --> South-West
-    If D is between 157.5 degrees and 202.5 degrees --> South
-    If D is between 112.5 degrees and 157.5 degrees --> South-East
-    If D is between 67.5 degrees and 112.5 degrees --> East
-    If D is between 0 degrees and 67.5 degrees --> North-East 
- */
+    D = (337, 22]   => N
+    D = (22, 67]    => NE
+    D = (67, 122]   => E
+    D = (112, 157]  => SE
+    D = (157, 202]  => S
+    D = (202, 247]  => SW
+    D = (247, 292]  => W
+    D = (292, 337]  => NW
+    where D = angle
+*/
 int MAG_Angle(void) {
+    // read [x,y,z] sensor reading
     int16_t sensorData[3] = {0};
     MAG_Data(sensorData);
-    
-    /*
-    // debug
-    char str[40];
-    sprintf(str, "[x: %d, y: %d, z: %d]", sensorData[0], sensorData[1], sensorData[1]);
-    UART_send_str(str);
-    __delay_ms(500);
-    */
+
+    // handle corner cases before calc
+    if (sensorData[1] == 0 && sensorData[0] < 0) {
+        return 180;
+    }
+    else if (sensorData[1] == 0 && sensorData[0] > 0) {
+        return 0;
+    }
+
     // calculate angle from x,y,z readings
-    int16_t x = sensorData[0];
-    int16_t y = sensorData[1];
-    float Angle = 0.0;
-    float divider = ((float)y) / ((float)x); 
-    Angle = atan(divider);
-    Angle = (float)(Angle * (180/M_PI));// + DECLINATION;
-    
-    if (sensorData[1] < 0) {
-        Angle += 180;
+    // arctan(y/x)
+    // need to use atan2(x, y)
+    // => see: https://arduino.stackexchange.com/questions/18625/converting-three-axis-magnetometer-to-degrees
+    float angle = atan2((float)sensorData[0], (float)sensorData[1]);
+
+    // determine compass heading
+    if (sensorData[1] > 0) {
+        // when y > 0
+        return 90 - (int)(angle * (180/M_PI));
+    } 
+    else {
+        // when y < 0
+        return 270 - (int)(angle * (180/M_PI));
     }
-    Angle += 90;
-    /*
-    if (Angle > 360){
-        Angle = Angle - 360;
-    }
-    else if (Angle < 0){
-        Angle = Angle + 360;
-    */    
-    return (int)Angle;   
+
+    // shouldn't ever reach this
+    return -1;  
 }
 
 /* initialize magnetometer module */
