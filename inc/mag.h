@@ -1,5 +1,5 @@
 /**
- * @file    accel.h
+ * @file    mag.h
  * @author  Ali Choudhry, Mustafa Siddiqui
  * @brief   Header file for magnetometer related functions
  *          needed for calculating the azimuth angle which is
