@@ -8,6 +8,8 @@
  * 
  */
 
+#define DEBUG
+
 #include "../inc/spi.h"
 #include "../inc/mag.h"
 #include "../inc/uart.h"
@@ -103,10 +105,29 @@ void MAG_Data(int16_t* sensorData) {
     int16_t z = (Z2 << 8) | Z1;
 
     // populate var
-    memset(sensorData, 0, 3);
+    memset(sensorData, 0, NUM_AXIS * sizeof(sensorData[0]));
     sensorData[0] = x;
     sensorData[1] = y;
     sensorData[2] = z;
+}
+
+// get average of NUM_READINGS
+void MAG_AvgData(int32_t* avgData) {
+    memset(avgData, 0, NUM_AXIS * sizeof(avgData[0]));
+    int16_t sensorData[NUM_AXIS] = {0};
+    
+    // O(NUM_READINGS * NUM_AXIS) = constant time
+    for (int i = 0; i < NUM_READINGS; i++) {
+        MAG_Data(sensorData);
+        for (int j = 0; j < NUM_AXIS; j++) {
+            avgData[j] += sensorData[j];
+        }
+    }
+    
+    // O(NUM_AXIS) = constant time
+    for (int c = 0; c < NUM_AXIS; c++) {
+        avgData[c] /= NUM_READINGS;
+    }
 }
 
 /*
@@ -122,8 +143,17 @@ void MAG_Data(int16_t* sensorData) {
 */
 int MAG_Angle(void) {
     // read [x,y,z] sensor reading
-    int16_t sensorData[3] = {0};
-    MAG_Data(sensorData);
+    //int16_t sensorData[NUM_AXIS] = {0};
+    int32_t sensorData[NUM_AXIS] = {0};
+    MAG_AvgData(sensorData);
+    
+#ifdef DEBUG
+    // send angle data to Raspberry Pi
+    char debugStr[20];
+    sprintf(debugStr, "[x: %ld, y: %ld, z: %ld]", sensorData[0], sensorData[1], sensorData[2]);
+    UART_send_str(debugStr);
+    __delay_ms(10);
+#endif /* DEBUG */
 
     // handle corner cases before calc
     if (sensorData[1] == 0 && sensorData[0] < 0) {
@@ -138,33 +168,39 @@ int MAG_Angle(void) {
     // need to use atan2(x, y)
     // => see: https://arduino.stackexchange.com/questions/18625/converting-three-axis-magnetometer-to-degrees
     float angle = atan2((float)sensorData[0], (float)sensorData[1]);
-
+    
+    int angleDegrees = 0;
     // determine compass heading
     if (sensorData[1] > 0) {
         // when y > 0
-        return 90 - (int)(angle * (180/M_PI));
+        angleDegrees = 90 - (int)(angle * (180/M_PI));
     } 
     else {
         // when y < 0
-        return 270 - (int)(angle * (180/M_PI));
+        angleDegrees = 270 - (int)(angle * (180/M_PI));
     }
+    
+    // 360 = 0 degrees
+    if (angleDegrees == 360)
+        return 0;
 
-    // shouldn't ever reach this
-    return -1;  
+    return angleDegrees;  
 }
+
+//  TODO:
+//  - change ODR to 100Hz and see diff in readings -> no change, maybe a little more accurate
+//  - maybe change measurement mode to single reading? -> need to see how it works
 
 /* initialize magnetometer module */
 int Mag_Initialize(void) {
+    // high-res mode, 100Hz output data rate, continuous measurement mode
+    // => turn-on time: ~9.4 ms 
+    MAG_Write(CFG_REG_A, 0x0C);
+    __delay_ms(10);
     
-    MAG_Write(CFG_REG_A, 0x00);
-    //Set magnetometer to enable temperature compensation, normal mode,
-    //Don't reset registers, high-resolution mode, 100Hz output, and
-    //continuous measurement mode
-    
-    MAG_Write(CFG_REG_C, 0x36);
-    //Default interrupts, inhibit I2C (SPI only), avoid reading incorrect data,
-    //Don't invert high and low bits of data, 4-Wire SPI mode, enable self-test,
-    //Default data-ready
+    // SPI mode only, avoid reading incorrect data pin set, 4 wire SPI mode
+    // disable self-test, data-ready pin off since continuous mode
+    MAG_Write(CFG_REG_C, 0x34);
     
     // return 0 if incorrect device id
     if (Get_MAG_ID() != WHO_AM_I_VAL) 

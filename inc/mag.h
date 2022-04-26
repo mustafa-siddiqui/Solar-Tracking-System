@@ -25,9 +25,9 @@
 #define OFFSET_Z_REG_H 0x4A
 
 // Device ID Register and Status (Read Only)
-#define WHO_AM_I 0x4F       // ID register to indentify device
-#define WHO_AM_I_VAL 0x40   // Content of WHO_AM_I register
-#define STATUS_REG 0x67     // used to indicate device status
+#define WHO_AM_I        0x4F    // ID register to indentify device
+#define WHO_AM_I_VAL    0x40    // Content of WHO_AM_I register
+#define STATUS_REG      0x67    // used to indicate device status
 
 // Configuration Registers (Both Read and Write)
 #define CFG_REG_A 0x60      // Configure output data rate and measurement configuration
@@ -48,6 +48,12 @@
 // Utility Macros to set/clear individual bits in a register
 #define SET(reg, bitNum)   (reg |= (1 << bitNum))
 #define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
+
+// Number of axis readings the sensor reads
+#define NUM_AXIS        3 
+
+// Number of readings to average
+#define NUM_READINGS    10
 
 // create data packet to write to magnetometer
 // RW: read/write
@@ -71,6 +77,9 @@ int Mag_Initialize(void);
 
 // get current sensor reading [x,y,z]
 void MAG_Data(int16_t* sensorData);
+
+// get average of 10 sensor readings
+void MAG_AvgData(int32_t* avgData);
 
 // calculate azimuth angle in degrees
 // angle >= 0 always

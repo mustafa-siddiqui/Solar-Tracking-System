@@ -22,6 +22,9 @@
     
 #define _XTAL_FREQ 8000000  // 8 MHz
 
+#define WHITE_LED LATDbits.LATD2
+#define GREEN_LED LATDbits.LATD3
+
 int main(void) {
     // set clock freq to 8 MHz
     OSCCON = 0x72;
@@ -30,49 +33,33 @@ int main(void) {
     initPins();
     
     // turn on LEDs to indicate start of init process
-    LATDbits.LATD2 = 1;
-    LATDbits.LATD3 = 1;
-    __delay_ms(1500);
-    LATDbits.LATD2 = 0;
-    LATDbits.LATD3 = 0;
+    WHITE_LED = 1;
+    GREEN_LED = 1;
 
     // initialize UART module
     UART_RX_Init();
     UART_send_str("UART initialized...");
-    __delay_ms(1000);
+    __delay_ms(500);
 
     // initialize PIC18 as master for SPI
     initSPI();
     UART_send_str("SPI initialized...");
-    __delay_ms(1000);
+    __delay_ms(500);
     
     // initialize accelerometer for communication
-    int status1 = Mag_Initialize();
-    UART_send_str("MAG initialized...");
-    __delay_ms(1000);
-    
-    // turn off LEDs to indicate end of init process
-    LATDbits.LATD2 = 0;
-    LATDbits.LATD3 = 0;
-    _delay(1000);
-    
-    if (status1) {
-        UART_send_str("Mag ID correct!");
-        LATDbits.LATD2 = 1;
-        __delay_ms(1000);
-        LATDbits.LATD2 = 0;
-        __delay_ms(1000);
+    if (Mag_Initialize()) {
+        UART_send_str("MAG initialized...");
+        __delay_ms(500);
     }
     
+    // turn off LEDs to indicate end of init process
+    WHITE_LED = 0;
+    GREEN_LED = 0;
+    _delay(1000);
+    
+#ifdef LOG_DATA
     int angles[100] = {0};
     while (1) {
-        /*
-        int angle = MAG_Angle();
-        char dataStr[20];
-        sprintf(dataStr, "Angle: %d", angle);
-        UART_send_str(dataStr);
-        __delay_ms(1000);
-        */
         LATDbits.LATD3 = 1;
         for (int i = 0; i < 100; i++) {
             angles[i] = MAG_Angle();
@@ -94,6 +81,23 @@ int main(void) {
             UART_send_str(str);
         }
     }
+#endif /* LOG_DATA */
     
+    while (1) {
+        GREEN_LED = 1;
+        int angle = MAG_Angle();
+        char angleStr[10];
+        sprintf(angleStr, "Angle: %d", angle);
+        UART_send_str(angleStr);
+        __delay_ms(10);
+        
+        // delay before next reading & calc
+        __delay_ms(1000);
+        
+        // signal end of calc and next iteration of loop
+        GREEN_LED = 0;
+        __delay_ms(1000);
+    }
+
     return 0;
 }
