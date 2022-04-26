@@ -18,6 +18,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// no delays should be called in this function
+// initialization should happen as quick as possible to 
+// minimize initial jerk to motor
 void pwm_Init(float f) {
     TRISCbits.RC2=0; //Setting RC2/CCP1 pin as an output
     PORTCbits.RC2=0;
