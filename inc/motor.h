@@ -28,7 +28,8 @@ enum motorNum {
 // TODO: Add comment blocks
 
 void pwm_Init(float f);
-void set_duty_cycle(int fraction, float f, int dir);
+void motor1_duty_cycle(int fraction, int dir);
+void motor2_duty_cycle(int fraction, int dir);
 
 // TODO: Implement these functions - @mjumaev
 
