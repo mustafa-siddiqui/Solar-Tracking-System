@@ -167,7 +167,14 @@ int MAG_Angle(void) {
     // arctan(y/x)
     // need to use atan2(x, y)
     // => see: https://arduino.stackexchange.com/questions/18625/converting-three-axis-magnetometer-to-degrees
-    float angle = atan2((float)sensorData[0], (float)sensorData[1]);
+    float angle = atan2(sensorData[1], sensorData[0]);
+    
+#ifdef DEBUG
+    char rawAngle[20];
+    sprintf(rawAngle, "Raw angle: %f", angle);
+    UART_send_str(rawAngle);
+    __delay_ms(100);
+#endif /* DEBUG */
     
     int angleDegrees = 0;
     // determine compass heading
