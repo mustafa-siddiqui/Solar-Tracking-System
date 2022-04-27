@@ -82,7 +82,7 @@ int main(void) {
         }
     }
 #endif /* LOG_DATA */
-    
+
     while (1) {
         GREEN_LED = 1;
         int angle = MAG_Angle();

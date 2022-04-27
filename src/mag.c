@@ -143,14 +143,14 @@ void MAG_AvgData(int32_t* avgData) {
 */
 int MAG_Angle(void) {
     // read [x,y,z] sensor reading
-    //int16_t sensorData[NUM_AXIS] = {0};
-    int32_t sensorData[NUM_AXIS] = {0};
-    MAG_AvgData(sensorData);
+    int16_t sensorData[NUM_AXIS] = {0};
+    //int32_t sensorData[NUM_AXIS] = {0};
+    MAG_Data(sensorData);
     
 #ifdef DEBUG
     // send angle data to Raspberry Pi
     char debugStr[20];
-    sprintf(debugStr, "[x: %ld, y: %ld, z: %ld]", sensorData[0], sensorData[1], sensorData[2]);
+    sprintf(debugStr, "[x: %d, y: %d, z: %d]\n", sensorData[0], sensorData[1], sensorData[2]);
     UART_send_str(debugStr);
     __delay_ms(10);
 #endif /* DEBUG */
@@ -164,28 +164,29 @@ int MAG_Angle(void) {
     }
 
     // calculate angle from x,y,z readings
-    // arctan(y/x)
-    // need to use atan2(x, y)
+    // quadrant-aware arctan(y/x)
     // => see: https://arduino.stackexchange.com/questions/18625/converting-three-axis-magnetometer-to-degrees
     float angle = atan2(sensorData[1], sensorData[0]);
     
 #ifdef DEBUG
     char rawAngle[20];
-    sprintf(rawAngle, "Raw angle: %f", angle);
+    sprintf(rawAngle, "Raw angle: %f\n", angle);
     UART_send_str(rawAngle);
     __delay_ms(100);
 #endif /* DEBUG */
     
-    int angleDegrees = 0;
-    // determine compass heading
-    if (sensorData[1] > 0) {
-        // when y > 0
-        angleDegrees = 90 - (int)(angle * (180/M_PI));
-    } 
-    else {
-        // when y < 0
-        angleDegrees = 270 - (int)(angle * (180/M_PI));
-    }
+    // convert from rad to deg
+    int angleDegrees = (int)(angle * (180/M_PI));
+    
+#ifdef DEBUG
+    char degStr[20];
+    sprintf(degStr, "%d degrees\n", angleDegrees);
+    UART_send_str(degStr);
+#endif /* DEBUG */
+    
+    // keep between 0-180
+    // => change to keep btw 0-360
+    angleDegrees = (angleDegrees + 180) % 180;
     
     // 360 = 0 degrees
     if (angleDegrees == 360)
@@ -200,9 +201,9 @@ int MAG_Angle(void) {
 
 /* initialize magnetometer module */
 int Mag_Initialize(void) {
-    // high-res mode, 100Hz output data rate, continuous measurement mode
+    // high-res mode, 10Hz output data rate, continuous measurement mode
     // => turn-on time: ~9.4 ms 
-    MAG_Write(CFG_REG_A, 0x0C);
+    MAG_Write(CFG_REG_A, 0x00);
     __delay_ms(10);
     
     // SPI mode only, avoid reading incorrect data pin set, 4 wire SPI mode
