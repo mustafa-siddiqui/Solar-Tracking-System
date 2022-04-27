@@ -40,7 +40,10 @@
 /* Utility macro to square a value */
 #define SQUARE(num) (num * num)
 
-/* define number of readings to average when reading sensor data */
+/* Number of axis readings given by the sensor */
+#define NUM_AXIS        3
+
+/* Number of readings to average when reading sensor data */
 /* 0.1 sec worth of data given a 100 Hz data rate */
 #define NUM_READINGS    10
 
