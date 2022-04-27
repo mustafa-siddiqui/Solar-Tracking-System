@@ -104,7 +104,7 @@ void _ACCEL_getCurrentReading(int16_t *sensorData) {
     int16_t z = (zVal_1 << 8) | zVal_0;
 
     // populate var
-    memset(sensorData, 0, 3 * sizeof(sensorData[0]));
+    memset(sensorData, 0, NUM_AXIS * sizeof(sensorData[0]));
     sensorData[0] = x + xAxisOffset;
     sensorData[1] = y + yAxisOffset;
     sensorData[2] = z + zAxisOffset;
@@ -112,7 +112,7 @@ void _ACCEL_getCurrentReading(int16_t *sensorData) {
 
 /* get average x,y,z readings from sensor */
 void _ACCEL_getAvgReading(int32_t *avgData) {
-    memset(avgData, 0, 3 * sizeof(avgData[0]));
+    memset(avgData, 0, NUM_AXIS * sizeof(avgData[0]));
 
     // get NUM_READINGS amount of readings and average
     // O(NUM_READINGS * NUM_AXIS) = constant time
@@ -158,11 +158,11 @@ int getCurrentZenith(void) {
     // the calculations cancel out the effect i.e. we obtain a ratio -- which is
     // going to be the same regardless
     // format: [x, y, z]
-    int32_t sensorData[3] = {0};
+    int32_t sensorData[NUM_AXIS] = {0};
     _ACCEL_getAvgReading(sensorData);
     
     // V = sqrt(Vx^2 + Vy^2 + Vz^2)
-    float vector = sqrt(SQUARE((int32_t)sensorData[0]) + SQUARE((int32_t)sensorData[1]) + SQUARE((int32_t)sensorData[2]));
+    float vector = sqrt(SQUARE(sensorData[0]) + SQUARE(sensorData[1]) + SQUARE(sensorData[2]));
 
     // calculate the zenith angle (angle between vector and the vertical axis)
     float angle = acos(((float)sensorData[2]) / vector);
