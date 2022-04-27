@@ -105,7 +105,7 @@ void _ACCEL_getCurrentReading(int16_t *sensorData) {
     int16_t z = (zVal_0 << 8) | zVal_1;
 
     // populate var
-    memset(sensorData, 0, 3 * sizeof(sensorData[0]));
+    memset(sensorData, 0, NUM_AXIS * sizeof(sensorData[0]));
     sensorData[0] = x;
     sensorData[1] = y;
     sensorData[2] = z;
@@ -113,20 +113,22 @@ void _ACCEL_getCurrentReading(int16_t *sensorData) {
 
 /* get average x,y,z readings from sensor */
 void _ACCEL_getAvgReading(int *avgData) {
-    memset(avgData, 0, 3 * sizeof(avgData[0]));
+    memset(avgData, 0, NUM_AXIS * sizeof(avgData[0]));
 
     // get NUM_READINGS amount of readings and average
-    int16_t sensorReading[3] = {0};
+    // O(NUM_READINGS * NUM_AXIS) = constant time
+    int16_t sensorReading[NUM_AXIS] = {0};
     for (int i = 0; i < NUM_READINGS; i++) {
         _ACCEL_getCurrentReading(sensorReading);
-        avgData[0] += sensorReading[0];
-        avgData[1] += sensorReading[1];
-        avgData[2] += sensorReading[2];
+        for (int j = 0; j < NUM_AXIS; j++) {
+            avgData[j] += sensorReading[j];
+        }
     }
 
-    avgData[0] /= NUM_READINGS;
-    avgData[1] /= NUM_READINGS;
-    avgData[2] /= NUM_READINGS;
+    // O(NUM_AXIS) = constant time
+    for (int c = 0; c < NUM_AXIS; c++) {
+        avgData[c] /= NUM_READINGS;
+    }
 }
 
 /* initialize accelerometer module */
@@ -157,15 +159,17 @@ int getCurrentZenith(void) {
     // the calculations cancel out the effect i.e. we obtain a ratio -- which is
     // going to be the same regardless
     // format: [x, y, z]
-    int sensorData[3] = {0};
+    int sensorData[NUM_AXIS] = {0};
     _ACCEL_getAvgReading(sensorData);
-    
+
+#ifdef DEBUG
     // see axis data used for calculations
     char dataStr[30];
     sprintf(dataStr, "[x: %d, y: %d, z: %d]", sensorData[0], sensorData[1], sensorData[2]);
     UART_send_str(dataStr);
     __delay_ms(1000);
-    
+#endif /* DEBUG */
+
     // V = sqrt(Vx^2 + Vy^2 + Vz^2)
     float vector = sqrt(SQUARE(sensorData[0] + SQUARE(sensorData[1]) + SQUARE(sensorData[2])));
 
@@ -175,10 +179,3 @@ int getCurrentZenith(void) {
     // return integer value of angle in degrees
     return (int)(angle * (180/M_PI));
 }
-
-//  TODO:
-//  - run code as is to see difference of using int16_t and average reading mechanism
-//  - try changing res to full resolution and see difference
-//  - when readings stable, get number of g's from sensor readings
-//  - remove offset such that readings match [x,y,z] => [0g,0g,-1g]
-//
