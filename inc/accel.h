@@ -20,6 +20,9 @@
 
 /* Register Maps */
 #define _ADDR_DEVID       0x00  /* device ID => stores fixed value of 0xE5 */
+#define _ADDR_OFSX        0x1E  /* x-axis offset */
+#define _ADDR_OFSY        0x1F  /* y-axis offset */
+#define _ADDR_OFSZ        0x20  /* z-axis offset */
 #define _ADDR_BW_RATE     0x2C  /* data rate and power mode control */
 #define _ADDR_POWER_CTL   0x2D  /* power-saving features control */
 #define _ADDR_DATA_FORMAT 0x31  /* data format control */
@@ -33,7 +36,7 @@
 /* Constant value stored in DEVID register of accelerometer */
 #define DEVID   (0xE5)
 
-/* Utility Macros to set/clear indvidual bits in a register */
+/* Utility Macros to set/clear individual bits in a register */
 #define SET(reg, bitNum)   (reg |= (1 << bitNum))
 #define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
 
@@ -46,6 +49,11 @@
 /* Number of readings to average when reading sensor data */
 /* 0.1 sec worth of data given a 100 Hz data rate */
 #define NUM_READINGS    10
+
+/* offset values to write to offset registers */
+int16_t xAxisOffset = -192;
+int16_t yAxisOffset = -192;
+int16_t zAxisOffset = 320;
 
 /**
  * @brief   Create first data byte that is transmitted over SPI for
@@ -94,10 +102,10 @@ void _ACCEL_getCurrentReading(int16_t *sensorData);
 
 /**
  * @brief   Get data equivalent to average of NUM_READINGS.
- * @param   avgData: pointer to an integer array to hold [x,y,z] values
+ * @param   avgData: pointer to a 32-bit integer array to hold [x,y,z] values
  * @return  NULL
  */
-void _ACCEL_getAvgReading(int *avgData);
+void _ACCEL_getAvgReading(int32_t *avgData);
 
 /**
  * @brief   Configure accelerometer's SPI module as slave
