@@ -24,6 +24,9 @@ Sun Tracking PV System for Senior Design.
     * Give user the option to turn on/off
     * Control motion of the system
 
+### Module Diagram
+![module_diagram](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/info/moduleDiagram.png)
+
 ### Dev Setup
 Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
@@ -38,11 +41,21 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 > In `Conf: [default]/PICkit 3/`, select `Power` in `Option Categories`, enable `Power target circuit from PICkit 3`, and select `Voltage level` = 4.75 V.  
 
 ### Progress
-*keep track of dev progress as we go*
+[*keep track of dev progress as we go*]
 
 **04/05**: Successfully debugged MCU issue (irregular behavior turned out to be because of some pins in floating state; added a 7.5k ohm resistor between MCLR/Vpp and Vdd). Ready for software development.
 
 **04/09**: SPI module created. Overall module layout created. Have separate modules for accelorometer, magnetometer, and GPS receiver. These modules will communicate with the main module. Most likely, timers will be used in the main module to get sensor data from these modules.
+
+**04/16**: UART module working. Working on SPI module to work with the accelerometer module. On the hardware side, structure assembly is pretty much done. Connecting Raspberry Pi's ground to the MCU's ground has resulting current leakage – need to find a way to prevent this.
+
+**04/17**: SPI communication with the accelerometer working. Leaking current issue fixed with a diode. Work on motor control module started. Built-in delay functions now accurate and work as intended. Please use `__delay_ms()` or `__delay_us()` in your code.
+
+**04/19**: Able to get raw values with the accelerometer and magnetometer. Motor control is also up and running -- although more conciseness could be achieved in terms of ability to control the output (input to the H-bridge). Code is pretty stable now -- UART and SPI communication behavior is consistent across devices.
+
+**04/22**: GPS module's NMEA string parsing is working. The sun's zenith and azimuth angles are correctly calculated from time and coordinates.
+
+**04/24**: Accelerometer module is fully working and angle calculations have been verified. Solar PV System power output data was logged to be able to produce a graph/figure of the improvements made due to our design -- even though the sun tracking ability is still in development, this log contains the effects of the 4 reflectors and we want to have some data at hand before *Design Day* (the next couple of days are rainy here in Rochester).
 
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
@@ -51,3 +64,13 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 -> Please make sure to add adequate comments to ease any debugging processes later down the line. Also, in the header files for the modules, please make sure to add a comment block above the function declaration mentioning a brief overview, parameter descriptions, and what info is returned. Example: `initPins()` in `init.h`.
 
+-> Currently used MCU pins:
+   * RC1, RC2, RC3, RC4, RC5, RC6, RC7
+   * RD2, RD3, RD4, RD5, RD6
+   * RE2, RE3
+
+-> Available MCU pins:
+   * RA0, RA1, RA2, RA3, RA4, RA5, RA6, RA7
+   * RB0, RB1, RB2, RB3, RB4, RB5, RB6, RB7
+   * RD0, RD1
+   * RE0, RE1

@@ -57,7 +57,6 @@ void UART_RX_Init(void){
     RCIE=1;     
     PEIE=1;//enable peripheral interrupts
     
-    
     GIE = 1;  //enable global interrupts
     
     

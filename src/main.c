@@ -41,48 +41,13 @@ int main(void) {
     UART_send_str("SPI initialized...");
     __delay_ms(1000);
     
-    // initialize accelerometer for communication
-    int status = initAccel();
-    UART_send_str("ACCEL initialized...");
-    __delay_ms(1000);
-    
-    // test spi communication
-    char str[20];
-    sprintf(str, "POWER_CTL: %x", _ACCEL_readFromRegister(_ADDR_POWER_CTL));
-    UART_send_str(str);
-    __delay_ms(1000);
-    
-    memset(str, 0, sizeof(str));
-    sprintf(str, "BW_RATE: %x", _ACCEL_readFromRegister(_ADDR_BW_RATE));
-    UART_send_str(str);
-    __delay_ms(1000);
-    
-    memset(str, 0, sizeof(str));
-    sprintf(str, "DATA_FORMAT: %x", _ACCEL_readFromRegister(_ADDR_DATA_FORMAT));
-    UART_send_str(str);
-    __delay_ms(1000);
-    
     // turn off LEDs to indicate end of init process
     LATDbits.LATD2 = 0;
     LATDbits.LATD3 = 0;
-    _delay(10000);
+    __delay_ms(1000);
     
-    if (status) {
-        UART_send_str("Device ID correct!");
-        LATDbits.LATD2 = 1;
-        __delay_ms(1000);
-        LATDbits.LATD2 = 0;
-        __delay_ms(1000);
-    }
-    
-    int sensorData[3] = {0};
     while (1) {
-        // see current angle
-        int angle = getCurrentZenith();
-        char angleStr[10];
-        sprintf(angleStr, "Angle: %d\n", angle);
-        UART_send_str(angleStr);
-        __delay_ms(1000);
+        ;
     }
 
     return 0;
