@@ -19,11 +19,4 @@ void initPins(void) {
     TRISC = 0x0;
     TRISD = 0x0;
     TRISE = 0x0;
-    
-    // set to 0
-    LATA = 0x0;
-    LATB = 0x0;
-    LATC = 0x0;
-    LATD = 0x0;
-    LATE = 0x0;
 }
