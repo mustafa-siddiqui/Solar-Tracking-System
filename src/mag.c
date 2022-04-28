@@ -1,6 +1,6 @@
 /**
  * @file    mag.c
- * @author  Ali Choudhry
+ * @author  Ali Choudhry, Mustafa Siddiqui
  * @brief   Function definitions for magnetometer module.
  * @date    04/12/2022
  * 
@@ -90,13 +90,13 @@ unsigned char Get_MAG_ID(void) {
 
 /* get x,y,z sensor reading from magnetometer */
 void MAG_Data(int16_t* sensorData) {
-    //OUT Registers provide us with Magnetometer raw data
-    unsigned char X1 = MAG_Read(OUTX_L_REG);    //L--> Low Bits
-    unsigned char X2 = MAG_Read(OUTX_H_REG);    //H--> High Bits
-    unsigned char Y1 = MAG_Read(OUTY_L_REG);
-    unsigned char Y2 = MAG_Read(OUTY_H_REG);
-    unsigned char Z1 = MAG_Read(OUTZ_L_REG);
-    unsigned char Z2 = MAG_Read(OUTZ_H_REG);
+    // OUT Registers provide us with Magnetometer raw data
+    uint8_t X1 = MAG_Read(OUTX_L_REG);    //L--> Low Bits
+    uint8_t X2 = MAG_Read(OUTX_H_REG);    //H--> High Bits
+    uint8_t Y1 = MAG_Read(OUTY_L_REG);
+    uint8_t Y2 = MAG_Read(OUTY_H_REG);
+    uint8_t Z1 = MAG_Read(OUTZ_L_REG);
+    uint8_t Z2 = MAG_Read(OUTZ_H_REG);
     
     // combine high and low values into one number
     // bits represent signed 2's complement format
@@ -142,13 +142,16 @@ void MAG_AvgData(int32_t* avgData) {
     where D = angle
 */
 int MAG_Angle(void) {
-    // read [x,y,z] sensor reading
+    // read current [x,y,z] sensor reading
     int16_t sensorData[NUM_AXIS] = {0};
-    //int32_t sensorData[NUM_AXIS] = {0};
     MAG_Data(sensorData);
     
+    // get average of NUM_READINGS
+    //int32_t sensorData[NUM_AXIS] = {0};
+    //MAG_AvgData(sensorData);
+
 #ifdef DEBUG
-    // send angle data to Raspberry Pi
+    // send axis data to Raspberry Pi
     char debugStr[20];
     sprintf(debugStr, "[x: %d, y: %d, z: %d]\n", sensorData[0], sensorData[1], sensorData[2]);
     UART_send_str(debugStr);
@@ -176,20 +179,17 @@ int MAG_Angle(void) {
     UART_send_str(degStr);
 #endif /* DEBUG */
     
-    // keep between 0-180
-    // => change to keep btw 0-360
-    //angleDegrees = (angleDegrees + 180) % 180;
-    
-    // 360 = 0 degrees
-    if (angleDegrees == 360)
-        return 0;
+    // map (-180, 180] to [0, 360]
+    // Note: angles given by atan2() in [0, 180] should remain as is,
+    //       the negative angles correspond to (180, 360] on the euclidean plane
+    // this handles:
+    // 1. [1, 180]      => will return as is
+    // 2. [-180, -1]    => will return [180, 359]
+    // 3. 0 and 360     => when 360, will return 0
+    angleDegrees = (angleDegrees + 360) % 360;
 
     return angleDegrees;  
 }
-
-//  TODO:
-//  - change ODR to 100Hz and see diff in readings -> no change, maybe a little more accurate
-//  - maybe change measurement mode to single reading? -> need to see how it works
 
 /* initialize magnetometer module */
 int Mag_Initialize(void) {
