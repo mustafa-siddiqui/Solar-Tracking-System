@@ -9,29 +9,29 @@
 #include "../inc/uart.h"
 
 
+
 /*
  * Interrupt that handles an incoming UART character
  */
-void __interrupt() UARTRX_ISR() {
-    char a;
-    if(RCIF==1)                     //Polling for reception interrupt
-    {
-       
-        a = RCREG;   //save received character
-        strncat(UART_buffer, &a, 1);  //add it to the buffer
-        if (a=='\0' || a==0 || a=='\r') {
-            UART_RX_Handle(); 
-        }
-        RCIF = 0; //reset interrupt status flag
-    }  
-    
+char UART_Read_char()
+{
+while(RCIF==0); // see if data on RC7 pin is available 
+if(RCSTAbits.OERR)
+{ 
+CREN = 0;
+NOP();
+CREN=1;
 }
+return(RCREG); //read the byte from receive register and return value
+}
+
 
 
 /*
  * Initialize UART and UART RX interrupt
  */
 void UART_RX_Init(void){
+    
     // Set the RX-TX pins to be in UART mode, not I/O
     TRISCbits.RC7 = 1;
     TRISCbits.RC6 = 0;
@@ -44,22 +44,7 @@ void UART_RX_Init(void){
     
     TXSTAbits.SYNC = 0; // Asyncronous mode
     TXSTAbits.BRGH = 1; // High speed
-    TXSTAbits.TXEN = 1; // Transmit enable   
-    
-    //clear buffer
-    memset(UART_buffer,0,sizeof(UART_buffer));
-    
-    IPR1bits.RCIP = 1; // Receive interrupt high priority
-    PIE1bits.RCIE = 1; // UART receive interrupt enabled
-    PIR1bits.RCIF=0; //set flag to 0
-    
-    
-    RCIE=1;     
-    PEIE=1;
-    
-    GIE = 1;  //enable global interrupts
-    
-    
+    TXSTAbits.TXEN = 1; // Transmit enable 
 }
 
 /*
@@ -79,22 +64,6 @@ void UART_send_str(const char *str) {
     }
 }
 
-void MSdelay(unsigned int val){	/* Delay of 1 ms for 8MHz Frequency */
-     unsigned int i,j;
-        for(i=0;i<val;i++)
-            for(j=0;j<165;j++);
-}
-
-
-/*
- *Define what should happen when the RX buffer is full
- */
-void UART_RX_Handle() {
-    //do something with UART buffer
-    UART_send_str(UART_buffer); //for now just send it back over UART
-    //clear buffer
-    memset(UART_buffer,0,sizeof(UART_buffer));
-}
 
 
 

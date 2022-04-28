@@ -10,22 +10,24 @@
 
 #include "../inc/init.h"
 #include "../inc/spi.h"
-#include "../inc/mag.h"
+#include "../inc/accel.h"
 #include "../inc/uart.h"
+#include "../inc/motor.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
-#include <string.h>
-#include <stdlib.h> // memset()
-#include <math.h>
-#include <string.h>
-
-#define LOG_DATA
+#include <string.h> // memset()
+#include <stdlib.h>
     
 #define _XTAL_FREQ 8000000  // 8 MHz
+#define MAX_CYCLES 20
+#define ALLOWED_ERROR 2
+#define UP_POWER
+#define ERROR_LIGHT LATDbits.LATD3
 
-#define WHITE_LED LATDbits.LATD2
-#define GREEN_LED LATDbits.LATD3
+int move_vertical_to_angle(int angle);
+void error(void);
+void variableDelay(int num);
 
 int main(void) {
     // set clock freq to 8 MHz
@@ -35,72 +37,168 @@ int main(void) {
     initPins();
     
     // turn on LEDs to indicate start of init process
-    WHITE_LED = 1;
-    GREEN_LED = 1;
+    ERROR_LIGHT = 1;
+    __delay_ms(1000);
 
     // initialize UART module
     UART_RX_Init();
     UART_send_str("UART initialized...");
-    __delay_ms(500);
+    __delay_ms(1000);
 
     // initialize PIC18 as master for SPI
     initSPI();
     UART_send_str("SPI initialized...");
-    __delay_ms(500);
+    __delay_ms(1000);
     
-    // initialize accelerometer for communication
-    if (Mag_Initialize()) {
-        UART_send_str("MAG initialized...");
-        __delay_ms(500);
+    if (!initAccel()) {
+        error();
     }
+    UART_send_str("Accel initialized...");
+    
+    //init motors
+    pwm_Init();
     
     // turn off LEDs to indicate end of init process
-    WHITE_LED = 0;
-    GREEN_LED = 0;
-    _delay(1000);
+    ERROR_LIGHT = 0;
+    __delay_ms(1000);
     
-#ifdef LOG_DATA
-    int angles[100] = {0};
-   
-    GREEN_LED = 1;
-    for (int i = 0; i < 100; i++) {
-        angles[i] = MAG_Angle();
-        __delay_ms(100);
+    if (move_vertical_to_angle(0)){
+        error();
     }
-    GREEN_LED = 0;
-
-    // 3 min delay
-    for (int i = 0; i < 180; i++) {
-        __delay_ms(1000);
-    }
-
-    // signal UART transmission
-    WHITE_LED = 1;
+    
     char str[20];
-    for (int i = 0; i < 100; i++) {
-        memset(str, 0, 20);
-        sprintf(str, "Angle %d: %d\n", i, angles[i]);
-        UART_send_str(str);
-    }
-#endif /* LOG_DATA */
-
-#ifndef LOG_DATA
+    int angle;
     while (1) {
-        GREEN_LED = 1;
-        int angle = MAG_Angle();
-        char angleStr[10];
-        sprintf(angleStr, "Angle: %d", angle);
-        UART_send_str(angleStr);
+        angle = getCurrentZenith();
+        sprintf(str, "Angle: %d", angle);
+        UART_send_str(str);
         __delay_ms(10);
-        
-        // delay before next reading & calc
-        __delay_ms(1000);
-        
-        // signal end of calc and next iteration of loop
-        GREEN_LED = 0;
-        __delay_ms(1000);
     }
-#endif /* !LOG_DATA */
 
     return 0;
+}
+
+
+int move_vertical_to_angle(int target_angle) {
+   
+    // validate input angle
+    if (target_angle < 0 || target_angle > 80) {
+        return 1;
+    }
+    
+    int current_angle; 
+    int speed = 0; 
+    int time = 50;
+    
+    int cycles = 0; //clockwise moves down, counterclockwise moves up
+    int last_error = 0;
+    int change_in_error = 0;
+    int error = 0;
+    int stall_power = 0;
+    int direction;
+    
+    do {
+        __delay_ms(200);
+        
+        // measure current angle
+        current_angle = getCurrentZenith();
+        
+        // validate the current angle
+        char str[10];
+        sprintf(str, "CA:%d", current_angle);
+        UART_send_str(str);
+        
+        if (current_angle < -90 || current_angle > 90) {
+            return 1;
+        
+        }
+        
+        // calculate error
+        error = target_angle - current_angle;
+        sprintf(str, "e:%d", error);
+        UART_send_str(str);
+        
+        // if within allowed angle stop
+        if (abs(error) < ALLOWED_ERROR) {
+            UART_send_str("DONE");
+            return 0;
+        }
+                
+        // calculate the change in error
+        if (last_error != 0) {
+            change_in_error = error - last_error;
+            
+            if (change_in_error == 0) { // if we haven't moved
+                stall_power += 10; // increase power
+            } else {
+                stall_power = 0;
+            }
+        }
+       
+        /* speed formula */
+        // check if we are moving up or down, adjust formula as necessary
+        if (abs(target_angle)> abs(current_angle)) { //down
+            speed = 20;
+            //time = error*2; //want to do something like this to adjust the time
+        } else { //up
+            speed = 5*abs(current_angle) + stall_power;
+            //time= error*2;
+        }
+        
+        // check that speed is within correct range
+        if (speed < 0) {
+            speed = 0;
+        } else if (speed > 500) {  
+            speed = 500;
+        }
+        
+        // figure what direction to move
+        if (error > 0) { //move clockwise
+
+            direction = CLOCKWISE;
+            UART_send_str("CLOCKWISE");
+            
+        } else { //move counterclockwise
+            
+            direction = COUNTER_CLOCKWISE;
+            UART_send_str("COUNTERCLOCKWISE");
+        }
+        
+        sprintf(str, "s:%d", speed);
+        UART_send_str(str);
+        //move the motor
+        moveMotor(speed, direction, VERTICAL);
+        //moveVerticalMotor(speed, direction);
+        variableDelay(time);
+        //stopVerticalMotor();
+        stopMotor(VERTICAL);    
+        
+        
+        
+        last_error = error;
+        cycles++;
+        
+        
+    } while (cycles < MAX_CYCLES);
+    
+    
+    return 0;
+    
+}
+
+void error() {
+    // keep on flashing error LED until users shuts power
+    while(1) {
+        ERROR_LIGHT = 1;
+        __delay_ms(500);
+        ERROR_LIGHT = 0;
+        __delay_ms(500);
+    }
+}
+
+void variableDelay(int num) {
+    // delay for num ms
+    for (int i = 0; i < num; i++) {
+        __delay__ms(1);
+    }
 }
