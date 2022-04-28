@@ -19,4 +19,8 @@ void initPins(void) {
     TRISC = 0x0;
     TRISD = 0x0;
     TRISE = 0x0;
+    
+    // make sure the motors don't turn at start-up
+    LATCbits.LATC2 = 0;
+    LATDbits.LATD4 = 0;
 }
