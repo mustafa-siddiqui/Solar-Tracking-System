@@ -9,11 +9,13 @@
  */
 
 #include "../inc/init.h"
-#include "../inc/uart.h"
 #include "../inc/spi.h"
+#include "../inc/accel.h"
+#include "../inc/uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
+#include <string.h> // memset()
     
 #define _XTAL_FREQ 8000000  // 8 MHz
 
