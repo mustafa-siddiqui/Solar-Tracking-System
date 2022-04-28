@@ -37,15 +37,18 @@ void pwm_Init(void);
 
 /**
  * @brief   Move motor which controls horizontal motion in the
- *          specified direction with a specified duty cycle.
+ *          specified direction with a specified duty cycle
+ *          between 0-500.
+ *  
  */
-void moveHorizontalMotor(int dutyCycle, int dir);
+void moveHorizontalMotor(int fraction, int dir);
 
 /**
  * @brief   Move motor which controls vertical motion in the
- *          specified direction with a specified duty cycle.
+ *          specified direction with a specified duty cycle
+ *          between 0-500.
  */
-void moveVerticalMotor(int dutyCycle, int dir);
+void moveVerticalMotor(int fraction, int dir);
 
 /**
  * @brief   Stop the Vertical Motor by setting the Duty Cycle

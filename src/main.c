@@ -16,8 +16,13 @@
 #include <xc.h>
 #include <stdio.h>  // sprintf()
 #include <string.h> // memset()
+#include <stdlib.h>
     
 #define _XTAL_FREQ 8000000  // 8 MHz
+#define MAX_CYCLES 20
+#define ALLOWED_ERROR 2
+
+int move_vertical_to_angle(int angle);
 
 int main(void) {
     // set clock freq to 8 MHz
@@ -51,4 +56,54 @@ int main(void) {
     }
 
     return 0;
+}
+
+
+int move_vertical_to_angle(int target_angle) {
+    //validate input angle
+    if (target_angle > 0 || target_angle < 80) {
+        return 1;
+    }
+    
+    int current_angle = getCurrentZenith();
+    
+    //validate the current angle
+    if (current_angle < -90 || current_angle > 90) {
+        return 1;
+        
+    }
+    int speed = 5; //start at 1%
+    
+    int cycles = 0; //clockwise moves down, counterclockwise moves up
+    do {
+        int error = target_angle - current_angle;
+        
+        // if within allowed angle stop
+        if (abs(error) > ALLOWED_ERROR) {
+            return 0;
+        }
+        //figure what direction to move
+        if (error > 0) { //move down
+            
+        } else { //move up
+            
+        }
+        
+        
+        //measure again
+        current_angle = getCurrentZenith();
+        //validate the current angle
+        if (current_angle < -90 || current_angle > 90) {
+            return 1;
+        
+        }
+        
+        cycles++;
+        
+        
+    } while (cycles < MAX_CYCLES);
+    
+    
+    
+    
 }
