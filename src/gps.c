@@ -67,7 +67,7 @@ void calculate_target_angles(struct TimePos time_pos, float* angles){
     int N = time_pos.ordinal_date - 1;
     float Ps = -asin(0.39779*cos(0.017203*(N+10)+ 0.033406*sin(0.017203*(N-2))));
 
-    float TGMT = time_pos.time / 60.0; //UTC time in hours
+    float TGMT = (float)(time_pos.time / 60.0); //UTC time in hours
     float ls = -15*(TGMT-12);
     float longitude = time_pos.longitude; //-77.622643
 
@@ -165,14 +165,14 @@ int str_to_minute(char* str) {
  * return latitude given string in DDmm.mm format
  */
 float str_to_latitude(char* str) {
-    return atof(str)/100;
+    return (float)(atof(str) / 100);
 }
 
 /*
  * return longitude given string in DDDmm.mm format
  */
 float str_to_longitude(char* str) {
-    return atof(str)/100;
+    return (float)(atof(str) / 100);
 }
 
 /*
@@ -189,7 +189,7 @@ int is_Valid_GPRMC(char* str){
     memcpy(newStr, str, 100);
 
     //calculate the correct checksum
-    int correct_checksum = calc_NMEA_Checksum(str, strlen(str));
+    int correct_checksum = calc_NMEA_Checksum(str, (int)strlen(str));
    
     //break up string
     const char delimiter[2] = ",";

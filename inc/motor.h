@@ -1,8 +1,11 @@
 /* 
- * File:   motor.h
- * Author: mahmudjumaev
- *
- * Created on April 21, 2022, 10:10 PM
+ * @file    motor.h
+ * @brief   Header file for motor control module.
+ * @author  Mahmud Jumaev, Mustafa Siddiqui
+ * @date    4/27/22
+ * 
+ * @copyright Copyright (c) 2022
+ * 
  */
 
 #ifndef MOTOR_H
@@ -10,21 +13,26 @@
 
 #define _XTAL_FREQ 8000000
 
+/* macros to set specific bits in a register */
 #define SET(reg, bitNum)   (reg |= (1 << bitNum))
 #define CLEAR(reg, bitNum) (reg &= ~(1 << bitNum))
 
+/* to select direction for a motor */
 enum dir {
     CLOCKWISE,
     COUNTER_CLOCKWISE
 };
 
+/* to select a motor */
 enum motorNum {
     HORIZONTAL,
     VERTICAL
 };
 
-
-
+/**
+ * @brief   Initialize the PWM module to enable duty cycle
+ *          to be set and motors be moved.
+ */
 void pwm_Init(void);
 
 /**
@@ -57,12 +65,19 @@ void stopHorizontalMotor(void);
  *          specified duty cycle.
  *          => primary func to be called from main()
  * @param   dutyCycle: value from 0 - 100
- * @param   freq: frequency - required for pwm calculations
  * @param   dir: direction => CLOCKWISE or COUNTER_CLOCKWISE 
  * @param   motorNum: which motor to move => HORIZONTAL or VERTICAL
  * @return  NONE
  */
 void moveMotor(int dutyCycle, int dir, int motorNum);
+
+/**
+ * @brief   Stop one of the motors -- horizontal or vertical.
+ *          => primary func to be called from main()
+ * @param   motorNum: which motor to stop => HORIZONTAL or VERTICAL
+ * @return  NONE
+ */
+void stopMotor(int motorNum);
 
 #endif	/* MOTOR_H */
 
