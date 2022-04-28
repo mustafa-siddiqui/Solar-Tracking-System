@@ -8,7 +8,7 @@
  * 
  */
 
-#include "spi.h"
+#include "../inc/spi.h"
 //-//
 #include <xc.h>
 

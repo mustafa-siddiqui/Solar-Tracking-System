@@ -16,6 +16,8 @@
 #ifndef _MAG_H_
 #define _MAG_H_
 
+#include <stdint.h> // int16_t
+
 /* Register Maps */
 //Hard Iron Registers (Both Read and Write)
 #define OFFSET_X_REG_L 0x45     //Compensate for environmental effects
@@ -67,7 +69,7 @@ signed char MAG_Write(unsigned char address, unsigned char data_transmit);
 unsigned char MAG_Read(unsigned char address);
 unsigned char Get_MAG_ID(void);
 int Mag_Initialize(void);
-void MAG_Data(int* sensorData);
+void MAG_Data(int16_t* sensorData);
 int MAG_Angle(void);
 
 #endif /* _MAG_H_ */

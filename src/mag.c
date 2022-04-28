@@ -7,9 +7,9 @@
  * @copyright Copyright (c) 2022
  * 
  */
-#include "spi.h"
-#include "mag.h"
-#include "uart.h"
+#include "../inc/spi.h"
+#include "../inc/mag.h"
+#include "../inc/uart.h"
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
@@ -89,7 +89,7 @@ unsigned char Get_MAG_ID(void) {
     return MAG_Read(WHO_AM_I);
 }
 
-void MAG_Data(int* sensorData) {
+void MAG_Data(int16_t* sensorData) {
     // TODO
     //OUT Registers provide us with Magnetometer raw data
     unsigned char X1 = MAG_Read(OUTX_L_REG);    //L--> Low Bits
@@ -101,29 +101,21 @@ void MAG_Data(int* sensorData) {
     
     // combine high and low values into one number
     // bits represent signed 2's complement format
-    float x = (X2 << 8) | X1;
-    float y = (Y2 << 8) | Y1;
-    float z = (Z2 << 8) | Z1;
+    int16_t x = (X2 << 8) | X1;
+    int16_t y = (Y2 << 8) | Y1;
+    int16_t z = (Z2 << 8) | Z1;
     // populate var
     memset(sensorData, 0, 4);
     sensorData[0] = x;
     sensorData[1] = y;
     sensorData[2] = z;
     
-    //__delay_ms(1000);
-    float Angle = 0;
-    float divider = (y/x); 
-    Angle = atan(divider);
-    Angle = Angle*(180/PI);// + DECLINATION;
+    float angle = atan2(sensorData[1], sensorData[0]);
     
-    if (Angle > 360){
-        Angle = Angle - 360;
-    }
-    else if (Angle < 0){
-        Angle = Angle + 360;
-    }
-    //__delay_ms(1000);
-    sensorData[3] = Angle;
+    // convert from rad to deg
+    int angleDegrees = (int)(angle * (180/M_PI));
+    
+    sensorData[3] = angleDegrees;
 }
 /*
 int MAG_Angle(void) {
@@ -142,7 +134,7 @@ int MAG_Angle(void) {
         Angle = Angle + 360;
     }
     return Angle;
-    /*
+    
     If D is greater than 337.25 degrees or less than 22.5 degrees --> North
     If D is between 292.5 degrees and 337.25 degrees --> North-West
     If D is between 247.5 degrees and 292.5 degrees --> West
@@ -159,10 +151,10 @@ int Mag_Initialize(void) {
     
     MAG_Write(CFG_REG_A, 0x00);
     //Set magnetometer to enable temperature compensation, normal mode,
-    //Don't reset registers, high-resolution mode, 100Hz output, and
+    //Don't reset registers, high-resolution mode, 10Hz output, and
     //continuous measurement mode
     
-    MAG_Write(CFG_REG_C, 0x36);
+    MAG_Write(CFG_REG_C, 0x34);
     //Default interrupts, inhibit I2C (SPI only), avoid reading incorrect data,
     //Don't invert high and low bits of data, 4-Wire SPI mode, enable self-test,
     //Default data-ready
