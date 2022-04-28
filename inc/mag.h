@@ -78,12 +78,11 @@ int Mag_Initialize(void);
 // get current sensor reading [x,y,z]
 void MAG_Data(int16_t* sensorData);
 
-// get average of 10 sensor readings
+// get average of NUM_READINGS sensor readings
 void MAG_AvgData(int32_t* avgData);
 
 // calculate azimuth angle in degrees
-// angle >= 0 always
-// -1 if some calc/reading error
+// angle = [0, 360)
 int MAG_Angle(void);
 
 #endif /* _MAG_H_ */
