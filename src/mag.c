@@ -27,7 +27,7 @@
 // Bits 1-7 --> Address of register in magnetometer
 // Bits 8-15 --> Data to be transmitted, MSb first
 unsigned char Create_MagData(int RW, unsigned char address){
-    unsigned char Data_Transmit = 0x0;
+    unsigned char Data_Transmit = 0x00;
     Data_Transmit |= address;
 
     // set read/write bit
@@ -155,14 +155,6 @@ int MAG_Angle(void) {
     __delay_ms(10);
 #endif /* DEBUG */
 
-    // handle corner cases before calc
-    if (sensorData[1] == 0 && sensorData[0] < 0) {
-        return 180;
-    }
-    else if (sensorData[1] == 0 && sensorData[0] > 0) {
-        return 0;
-    }
-
     // calculate angle from x,y,z readings
     // quadrant-aware arctan(y/x)
     // => see: https://arduino.stackexchange.com/questions/18625/converting-three-axis-magnetometer-to-degrees
@@ -186,7 +178,7 @@ int MAG_Angle(void) {
     
     // keep between 0-180
     // => change to keep btw 0-360
-    angleDegrees = (angleDegrees + 180) % 180;
+    //angleDegrees = (angleDegrees + 180) % 180;
     
     // 360 = 0 degrees
     if (angleDegrees == 360)

@@ -19,6 +19,8 @@
 #include <stdlib.h> // memset()
 #include <math.h>
 #include <string.h>
+
+#define LOG_DATA
     
 #define _XTAL_FREQ 8000000  // 8 MHz
 
@@ -59,30 +61,30 @@ int main(void) {
     
 #ifdef LOG_DATA
     int angles[100] = {0};
-    while (1) {
-        LATDbits.LATD3 = 1;
-        for (int i = 0; i < 100; i++) {
-            angles[i] = MAG_Angle();
-            __delay_ms(100);
-        }
-        LATDbits.LATD3 = 0;
-        
-        // 5 min delay
-        for (int i = 0; i < 300; i++) {
-            __delay_ms(1000);
-        }
-        
-        // signal UART transmission
-        LATDbits.LATD2 = 1;
-        char str[20];
-        for (int i = 0; i < 100; i++) {
-            memset(str, 0, 20);
-            sprintf(str, "Angle %d: %d", i, angles[i]);
-            UART_send_str(str);
-        }
+   
+    GREEN_LED = 1;
+    for (int i = 0; i < 100; i++) {
+        angles[i] = MAG_Angle();
+        __delay_ms(100);
+    }
+    GREEN_LED = 0;
+
+    // 3 min delay
+    for (int i = 0; i < 180; i++) {
+        __delay_ms(1000);
+    }
+
+    // signal UART transmission
+    WHITE_LED = 1;
+    char str[20];
+    for (int i = 0; i < 100; i++) {
+        memset(str, 0, 20);
+        sprintf(str, "Angle %d: %d\n", i, angles[i]);
+        UART_send_str(str);
     }
 #endif /* LOG_DATA */
 
+    /*
     while (1) {
         GREEN_LED = 1;
         int angle = MAG_Angle();
@@ -98,6 +100,6 @@ int main(void) {
         GREEN_LED = 0;
         __delay_ms(1000);
     }
-
+    */
     return 0;
 }
