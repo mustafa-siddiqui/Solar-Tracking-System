@@ -84,7 +84,7 @@ int main(void) {
     }
 #endif /* LOG_DATA */
 
-    /*
+#ifndef LOG_DATA
     while (1) {
         GREEN_LED = 1;
         int angle = MAG_Angle();
@@ -100,6 +100,7 @@ int main(void) {
         GREEN_LED = 0;
         __delay_ms(1000);
     }
-    */
+#endif /* !LOG_DATA */
+
     return 0;
 }
