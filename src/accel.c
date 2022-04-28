@@ -168,5 +168,7 @@ int getCurrentZenith(void) {
     float angle = acos(((float)sensorData[2]) / vector);
 
     // return integer value of angle in degrees
-    return (int)(angle * (180/M_PI));
+    // when sensor horizontal: angle = 90
+    // when sensor vertical: angle = 0
+    return 90 - (int)(angle * (180/M_PI));
 }
