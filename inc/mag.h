@@ -55,6 +55,13 @@
 // Number of readings to average
 #define NUM_READINGS    10
 
+// Offsets -- hardcoded
+int16_t xAxisOffset = 380;
+int16_t yAxisOffset = 160;
+
+// Calibrate to 0
+int16_t initialOff = 0;
+
 // create data packet to write to magnetometer
 // RW: read/write
 // address: address of register

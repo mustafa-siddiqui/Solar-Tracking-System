@@ -8,7 +8,7 @@
  * 
  */
 
-#define DEBUG
+//#define DEBUG
 
 #include "../inc/spi.h"
 #include "../inc/mag.h"
@@ -18,6 +18,8 @@
 #include <stdio.h>  // sprintf()
 #include <stdlib.h>
 #include <math.h>
+
+#define DEBUG
 
 // Function that creates byte of data to be transmitted from PIC to Magnetometer
 // First input is Read/Write Bit
@@ -106,8 +108,8 @@ void MAG_Data(int16_t* sensorData) {
 
     // populate var
     memset(sensorData, 0, NUM_AXIS * sizeof(sensorData[0]));
-    sensorData[0] = x;
-    sensorData[1] = y;
+    sensorData[0] = x + xAxisOffset;
+    sensorData[1] = y + yAxisOffset;
     sensorData[2] = z;
 }
 
@@ -187,15 +189,16 @@ int MAG_Angle(void) {
     // 2. [-180, -1]    => will return [180, 359]
     // 3. 0 and 360     => when 360, will return 0
     angleDegrees = (angleDegrees + 360) % 360;
-
-    return angleDegrees;  
+    
+    return ((360 + angleDegrees) - (int)DECLINATION - initialOff) % 360;  
 }
 
 /* initialize magnetometer module */
 int Mag_Initialize(void) {
+    // temp compensation enabled
     // high-res mode, 10Hz output data rate, continuous measurement mode
     // => turn-on time: ~9.4 ms 
-    MAG_Write(CFG_REG_A, 0x00);
+    MAG_Write(CFG_REG_A, 0x80);
     __delay_ms(10);
     
     // SPI mode only, avoid reading incorrect data pin set, 4 wire SPI mode
@@ -205,6 +208,9 @@ int Mag_Initialize(void) {
     // return 0 if incorrect device id
     if (Get_MAG_ID() != WHO_AM_I_VAL) 
         return 0;
+    
+    //point south to begin with
+    initialOff = (int16_t)MAG_Angle() - 180;
     
     return 1;
 }
