@@ -44,9 +44,7 @@ void UART_RX_Init(void){
     
     TXSTAbits.SYNC = 0; // Asyncronous mode
     TXSTAbits.BRGH = 1; // High speed
-    TXSTAbits.TXEN = 1; // Transmit enable   
-
-    
+    TXSTAbits.TXEN = 1; // Transmit enable 
 }
 
 /*
