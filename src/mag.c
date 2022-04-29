@@ -17,6 +17,7 @@
 #include <xc.h>
 #include <stdio.h>  // sprintf()
 #include <stdlib.h>
+#include <string.h> // memset()
 #include <math.h>
 
 // Function that creates byte of data to be transmitted from PIC to Magnetometer
