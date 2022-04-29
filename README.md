@@ -57,6 +57,10 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 **04/24**: Accelerometer module is fully working and angle calculations have been verified. Solar PV System power output data was logged to be able to produce a graph/figure of the improvements made due to our design -- even though the sun tracking ability is still in development, this log contains the effects of the 4 reflectors and we want to have some data at hand before *Design Day* (the next couple of days are rainy here in Rochester).
 
+**04/27**: Motor Control module complete and tested on individual motors.
+
+**04/29**: Main logic control code added and interfaced with other modules -- accelerometer, gps, spi, uart, and the motor control module. Tested on individual motors and have had somewhat success with implementing this on the actual hardware structure.
+
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
 
