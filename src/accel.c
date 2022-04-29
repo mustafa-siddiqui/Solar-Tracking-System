@@ -16,6 +16,8 @@
 #include <string.h> // memset()
 #include <math.h>   // sqrt()
 
+#define VERTICAL_ANGLE_OFFSET -5 //offset due to unlevel sensor
+
 /* create first data byte for SDI line for accelerometer */
 unsigned char _ACCEL_createDataByte1(int RW, int MB, unsigned char addr) {
     unsigned char dataByte1 = 0x0;
@@ -165,10 +167,13 @@ int getCurrentZenith(void) {
     float vector = sqrt(SQUARE(sensorData[0]) + SQUARE(sensorData[1]) + SQUARE(sensorData[2]));
 
     // calculate the zenith angle (angle between vector and the vertical axis)
-    float angle = acos(((float)sensorData[2]) / vector);
+    // according to the orientation of the sensor in our device structure
+    float angle = acos(((float)sensorData[1]) / vector);
 
     // return integer value of angle in degrees
-    // when sensor horizontal: angle = 90
-    // when sensor vertical: angle = 0
+    // when sensor horizontal: angle = 0
+    // when sensor vertical: angle = 
+    //    1.  y pointing down = -90
+    //    2.  y pointing up = +90
     return 90 - (int)(angle * (180/M_PI));
 }

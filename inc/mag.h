@@ -56,8 +56,8 @@
 #define NUM_READINGS    10
 
 // Offsets -- hardcoded
-int16_t xAxisOffset = 380;
-int16_t yAxisOffset = 160;
+int16_t xAxisMagOffset = 380;
+int16_t yAxisMagOffset = 160;
 
 // Calibrate to 0
 int16_t initialOff = 0;

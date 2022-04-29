@@ -8,18 +8,16 @@
  * 
  */
 
-//#define DEBUG
-
 #include "../inc/spi.h"
 #include "../inc/mag.h"
+#ifdef DEBUG
 #include "../inc/uart.h"
+#endif /* DEBUG */
 //-//
 #include <xc.h>
 #include <stdio.h>  // sprintf()
 #include <stdlib.h>
 #include <math.h>
-
-#define DEBUG
 
 // Function that creates byte of data to be transmitted from PIC to Magnetometer
 // First input is Read/Write Bit
@@ -108,8 +106,8 @@ void MAG_Data(int16_t* sensorData) {
 
     // populate var
     memset(sensorData, 0, NUM_AXIS * sizeof(sensorData[0]));
-    sensorData[0] = x + xAxisOffset;
-    sensorData[1] = y + yAxisOffset;
+    sensorData[0] = x + xAxisMagOffset;
+    sensorData[1] = y + yAxisMagOffset;
     sensorData[2] = z;
 }
 
