@@ -25,7 +25,7 @@ Sun Tracking PV System for Senior Design.
     * Control motion of the system
 
 ### Module Diagram
-![module_diagram](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/info/moduleDiagram.png)
+![module_diagram](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/docs/moduleDiagram.png)
 
 ### Dev Setup
 Microcontroller: PIC18F4680 (8-bit, 40 pins)
