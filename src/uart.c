@@ -1,37 +1,30 @@
-/*
- * File:   uart.c
- * Author: SeniorDesign-2022
- *
- * Created on April 15, 2022, 2:35 PM
+/**
+ * @file    uart.c
+ * @brief   Function definitions for UART module.
+ * @author  Carter Bordeleau
+ * @date    04/23/2022
  */
 
-
 #include "../inc/uart.h"
-
-
 
 /*
  * Interrupt that handles an incoming UART character
  */
-char UART_Read_char()
-{
-while(RCIF==0); // see if data on RC7 pin is available 
-if(RCSTAbits.OERR)
-{ 
-CREN = 0;
-NOP();
-CREN=1;
+char UART_Read_char() {
+    while(RCIF == 0); // see if data on RC7 pin is available 
+    if(RCSTAbits.OERR) { 
+        CREN = 0;
+        NOP();
+        CREN = 1;
+    }
+    
+    return(RCREG); //read the byte from receive register and return value
 }
-return(RCREG); //read the byte from receive register and return value
-}
-
-
 
 /*
  * Initialize UART and UART RX interrupt
  */
-void UART_RX_Init(void){
-    
+void UART_RX_Init(void) {
     // Set the RX-TX pins to be in UART mode, not I/O
     TRISCbits.RC7 = 1;
     TRISCbits.RC6 = 0;
@@ -50,9 +43,9 @@ void UART_RX_Init(void){
 /*
  * Send a single character over UART
  */
-void UART_send_char(char c){
+void UART_send_char(char c) {
     while(!PIR1bits.TXIF); // Wait until TXREG is empty
-    TXREG=c;
+    TXREG = c;
 }
 
 /*
@@ -63,10 +56,3 @@ void UART_send_str(const char *str) {
         UART_send_char(character);
     }
 }
-
-
-
-
-
-
-
