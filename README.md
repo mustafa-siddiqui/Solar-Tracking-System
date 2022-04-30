@@ -1,7 +1,26 @@
 # Solar Tracking System
 Sun Tracking PV System for Senior Design @ University of Rochester.
 
-Named as the ***Sunflower Bot*** by the many people who saw it in action on Design Day, this robot positions itself to point to the sun -- like a young sunflower -- to deliver more than 3x the power output as compared to using a single solar panel at a fixed tilted angle. In this aspect, it can be said that it shares the heliotropic abilities of a young sunflower. The reflectors concentrate more light onto the solar panel to increase instantaneous power output while the positioning mechanism's positive effects can be seen over a longer time frame.
+Named as the ***Sunflower Bot*** by the many people who saw it in action on Design Day, this robot positions itself to point to the sun -- like a young sunflower -- to deliver more than *3x* the power output as compared to using a single solar panel at a fixed tilted angle. In this aspect, it can be said that it shares the heliotropic abilities of a young sunflower. The reflectors concentrate more light onto the solar panel to increase instantaneous power output while the positioning mechanism's positive effects can be seen over a longer time frame.
+
+### Overview
+
+| Hardware Structure | Circuit Schematic |
+|---|---|
+| ![structure](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/docs/diagrams/hardwareStructure.png) | ![circuitry](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/docs/diagrams/circuitSchematic.jpeg) | 
+| 4 reflector panels with tilt angles calculated to point rays towards the solar panel | Circuit Board layout showing connections between different hardware components |
+
+### Results
+|![powerOutput](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/docs/results/systemResults.jpeg)|
+|---|
+| ~300% overall improvement -- tested on a partly sunny day in Rochester, NY |
+
+### The Team
+|![teamMembers](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/docs/teamMembers.jpeg)|
+|---|
+| From the left -- Ali Choudhry, Mahmud Jumaev, Mustafa Siddiqui, and Carter Bordeleau |
+
+## Diving into the Software
 
 ### Modules
 * GPS Receiver
@@ -27,7 +46,7 @@ Named as the ***Sunflower Bot*** by the many people who saw it in action on Desi
     * Control motion of the system
 
 ### Module Diagram
-![module_diagram](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/docs/moduleDiagram.png)
+![module_diagram](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/docs/diagrams/moduleDiagram.png)
 
 ### Dev Setup
 Microcontroller: PIC18F4680 (8-bit, 40 pins)
@@ -61,7 +80,7 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
 
 **04/27**: Motor Control module complete and tested on individual motors.
 
-**04/29**: Main logic control code added and interfaced with other modules -- accelerometer, gps, spi, uart, and the motor control module. Tested on individual motors and have had somewhat success with implementing this on the actual hardware structure.
+**04/29**: Main logic control code added and interfaced with other modules -- accelerometer, gps, spi, uart, and the motor control module. Tested on individual motors and have had somewhat success with implementing this on the actual hardware structure. Dynamic motor movement successfully demonstrated. The motors slow down as the system approaches the vertical target angle and when moving from down to up, detects if the system is stalling and needs more power to drive the motors in order to move the system upwards.
 
 ### Notes
 [*important points to let others know of/keep track of for oneself during development*]  
