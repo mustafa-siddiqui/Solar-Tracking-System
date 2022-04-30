@@ -100,3 +100,5 @@ Microcontroller: PIC18F4680 (8-bit, 40 pins)
    * RB0, RB1, RB2, RB3, RB4, RB5, RB6, RB7
    * RD0, RD1
    * RE0, RE1
+
+-> Our lab PC has git configured with @mustafa-siddiqui's account so insights into code contribution by github are not an accurate representation. See comment blocks in individual files to see who contributed where :)
