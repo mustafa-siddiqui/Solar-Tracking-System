@@ -25,25 +25,26 @@ Named as the ***Sunflower Bot*** by the many people who saw it in action on Desi
 ### Modules
 * GPS Receiver
     * receive gps coordinates of the sun and determine direction of target movement
+    * calculate the sun's zenith and azimuth angles
 * Accelerometer
     * determine the motion of the system and keep track of movement
-    * calculate zenith angle
+    * calculate system's current zenith angle
 * Magnetometer
     * measure direction of magnetic field
-    * calculate azimuth angle
+    * calculate system's current azimuth angle
 * Motor Movement & Control
     * send control signals to the DC gear motors for movement
         * PWM
         * direction bit
     * covers horizontal (rotation around the z-axis) and vertical (rotation around the y-axis) motion
 * System Info
-    * Operating info like
+    * Operating info like -> displayed on a digital meter attached to the hardware structure
         * time since turned on
         * kWhs generated
         * additional sunlight captured (or power generated) as compared to a single solar panel
 * User Control (if time and energy permits)
-    * Give user the option to turn on/off
-    * Control motion of the system
+    * Give user the option to turn on/off -> kill switch implemented in hardware
+    * Control motion of the system -> not implemented
 
 ### Module Diagram
 ![module_diagram](https://github.com/mustafa-siddiqui/Solar-Tracking-System/blob/main/docs/diagrams/moduleDiagram.png)
