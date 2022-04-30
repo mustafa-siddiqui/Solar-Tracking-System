@@ -1,5 +1,7 @@
 # Solar Tracking System
-Sun Tracking PV System for Senior Design.
+Sun Tracking PV System for Senior Design @ University of Rochester.
+
+Named as the ***Sunflower Bot*** by the many people who saw it in action on Design Day, this robot positions itself to point to the sun -- like a young sunflower -- to deliver more than 3x the power output as compared to using a single solar panel at a fixed tilted angle. In this aspect, it can be said that it shares the heliotropic abilities of a young sunflower. The reflectors concentrate more light onto the solar panel to increase instantaneous power output while the positioning mechanism's positive effects can be seen over a longer time frame.
 
 ### Modules
 * GPS Receiver
